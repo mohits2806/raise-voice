@@ -20,7 +20,7 @@ if (!cached) {
     cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect(): Promise<typeof mongoose> {
+async function dbConnect(): Promise<any> {
     if (cached.conn) {
         return cached.conn;
     }
