@@ -18,6 +18,12 @@ const UserSchema = new Schema<IUser>(
             type: String,
             select: false, // Don't return password by default
         },
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user',
+            required: true,
+        },
         image: {
             type: String,
         },
@@ -34,9 +40,6 @@ const UserSchema = new Schema<IUser>(
         timestamps: true,
     }
 );
-
-// Indexes for efficient queries
-UserSchema.index({ email: 1 });
 
 const User: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
 

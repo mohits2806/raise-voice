@@ -44,6 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: user.email,
                     name: user.name,
                     image: user.image,
+                    role: user.role, // Include role here
                 };
             },
         }),
@@ -58,17 +59,43 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     callbacks: {
         async jwt({ token, user, account }) {
+            // Set ID and initial role from user object when first signing in
             if (user) {
                 token.id = user.id;
+                token.role = user.role || 'user';
             }
+
+            // Always fetch fresh role from database on every request
+            if (token.id) {
+                try {
+                    await dbConnect();
+                    const dbUser = await User.findById(token.id);
+
+                    if (dbUser) {
+                        // Update or set the role
+                        token.role = dbUser.role || 'user';
+
+                        // If user doesn't have a role yet (OAuth users), set it
+                        if (!dbUser.role) {
+                            await User.findByIdAndUpdate(token.id, { role: 'user' });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching user role:', error);
+                    token.role = token.role || 'user';
+                }
+            }
+
             if (account?.provider) {
                 token.provider = account.provider;
             }
+
             return token;
         },
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
+                session.user.role = (token.role as string) || 'user';
             }
             return session;
         },

@@ -66,12 +66,25 @@ export default function Header() {
               Map
             </Link>
             {session && (
-              <Link
-                href="/profile"
-                className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
-              >
-                My Issues
-              </Link>
+              <>
+                <Link
+                  href="/profile"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
+                >
+                  My Issues
+                </Link>
+                
+                {/* Admin Link - Only visible to admins */}
+                {session.user?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="px-4 py-2 font-semibold rounded-lg transition-all duration-300 hover:scale-105 text-white bg-purple-600 hover:bg-purple-700"
+                    title="Admin Dashboard"
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
             )}
 
             {/* Theme Toggle */}
@@ -195,13 +208,27 @@ export default function Header() {
                 Map
               </Link>
               {session && (
-                <Link
-                  href="/profile"
-                  className="px-4 py-3 rounded-lg transition-all duration-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  My Issues
-                </Link>
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full px-4 py-3 text-left font-medium rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-white/10"
+                    style={{ color: 'rgb(var(--text-primary))' }}
+                  >
+                    My Issues
+                  </Link>
+                  
+                  {/* Admin Link - Mobile */}
+                  {session.user?.role === 'admin' && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block w-full px-4 py-3 text-left font-semibold rounded-lg transition-all duration-300 text-white bg-purple-600 hover:bg-purple-700"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                </>
               )}
               {session ? (
                 <>
