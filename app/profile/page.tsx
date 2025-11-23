@@ -20,7 +20,7 @@ export default function ProfilePage() {
     } else if (status === 'authenticated') {
       fetchUserIssues();
     }
-  }, [status]);
+  }, [status, router]);
 
   const fetchUserIssues = async () => {
     try {
@@ -43,9 +43,17 @@ export default function ProfilePage() {
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="glass rounded-2xl p-12 animate-pulse">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
-          <p className="text-white text-lg font-medium mt-4">Loading profile...</p>
+        <div className="card p-12 animate-pulse">
+          <div 
+            className="w-16 h-16 border-4 rounded-full animate-spin mx-auto"
+            style={{
+              borderColor: 'rgb(var(--border-primary))',
+              borderTopColor: 'rgb(var(--accent-primary))',
+            }}
+          ></div>
+          <p className="text-lg font-medium mt-4" style={{ color: 'rgb(var(--text-primary))' }}>
+            Loading profile...
+          </p>
         </div>
       </div>
     );
@@ -70,7 +78,7 @@ export default function ProfilePage() {
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Profile Header */}
-        <div className="glass rounded-2xl p-8 mb-6 animate-fade-in">
+        <div className="card p-6 sm:p-8 mb-6 animate-fade-in">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Profile Picture */}
             <div className="relative">
@@ -78,28 +86,38 @@ export default function ProfilePage() {
                 <img
                   src={session.user.image}
                   alt={session.user.name || 'User'}
-                  className="w-24 h-24 rounded-full border-4 border-white/20"
+                  className="w-24 h-24 rounded-full"
+                  style={{
+                    border: '4px solid rgb(var(--border-primary))',
+                    boxShadow: 'var(--shadow-lg)',
+                  }}
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-white/10 border-4 border-white/20 flex items-center justify-center">
-                  <UserIcon size={48} className="text-white/60" />
+                <div 
+                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: 'rgb(var(--bg-secondary))',
+                    border: '4px solid rgb(var(--border-primary))',
+                  }}
+                >
+                 <UserIcon size={48} style={{ color: 'rgb(var(--text-tertiary))' }} />
                 </div>
               )}
             </div>
 
             {/* User Info */}
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
                 {session.user.name || 'Anonymous User'}
               </h1>
-              <div className="flex flex-col md:flex-row gap-4 text-white/80">
-                <div className="flex items-center gap-2 justify-center md:justify-start">
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <Mail size={18} />
-                  <span>{session.user.email}</span>
+                  <span className="text-sm sm:text-base">{session.user.email}</span>
                 </div>
-                <div className="flex items-center gap-2 justify-center md:justify-start">
+                <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <Calendar size={18} />
-                  <span>Member since {format(new Date(), 'MMM yyyy')}</span>
+                  <span className="text-sm sm:text-base">Member since {format(new Date(), 'MMM yyyy')}</span>
                 </div>
               </div>
             </div>
@@ -107,82 +125,101 @@ export default function ProfilePage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">{stats.total}</div>
-                <div className="text-sm text-white/70">Total Issues</div>
+                <div className="text-2xl sm:text-3xl font-bold text-gradient-primary">{stats.total}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>Total Issues</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-400">{stats.resolved}</div>
-                <div className="text-sm text-white/70">Resolved</div>
+                <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'rgb(var(--accent-success))' }}>{stats.resolved}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>Resolved</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="glass rounded-xl p-6 animate-slide-up">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <TrendingUp className="text-blue-400" size={24} />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 stagger-children">
+          <div className="card group cursor-default">
+            <div className="flex items-center gap-3">
+              <div 
+                className="p-2 rounded-xl"
+                style={{ backgroundColor: 'rgba(var(--accent-primary), 0.1)' }}
+              >
+                <TrendingUp size={24} style={{ color: 'rgb(var(--accent-primary))' }} />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.total}</div>
-                <div className="text-sm text-white/70">Total Reports</div>
+                <div className="text-xl sm:text-2xl font-bold" style={{ color: 'rgb(var(--text-primary))' }}>{stats.total}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>Total Reports</div>
               </div>
             </div>
           </div>
 
-          <div className="glass rounded-xl p-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <AlertCircle className="text-red-400" size={24} />
+          <div className="card group cursor-default">
+            <div className="flex items-center gap-3">
+              <div 
+                className="p-2 rounded-xl"
+                style={{ backgroundColor: 'rgba(var(--accent-error), 0.1)' }}
+              >
+                <AlertCircle size={24} style={{ color: 'rgb(var(--accent-error))' }} />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.open}</div>
-                <div className="text-sm text-white/70">Open</div>
+                <div className="text-xl sm:text-2xl font-bold" style={{ color: 'rgb(var(--text-primary))' }}>{stats.open}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>Open</div>
               </div>
             </div>
           </div>
 
-          <div className="glass rounded-xl p-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <Clock className="text-yellow-400" size={24} />
+          <div className="card group cursor-default">
+            <div className="flex items-center gap-3">
+              <div 
+                className="p-2 rounded-xl"
+                style={{ backgroundColor: 'rgba(var(--accent-warning), 0.1)' }}
+              >
+                <Clock size={24} style={{ color: 'rgb(var(--accent-warning))' }} />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.inProgress}</div>
-                <div className="text-sm text-white/70">In Progress</div>
+                <div className="text-xl sm:text-2xl font-bold" style={{ color: 'rgb(var(--text-primary))' }}>{stats.inProgress}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>In Progress</div>
               </div>
             </div>
           </div>
 
-          <div className="glass rounded-xl p-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <CheckCircle className="text-green-400" size={24} />
+          <div className="card group cursor-default">
+            <div className="flex items-center gap-3">
+              <div 
+                className="p-2 rounded-xl"
+                style={{ backgroundColor: 'rgba(var(--accent-success), 0.1)' }}
+              >
+                <CheckCircle size={24} style={{ color: 'rgb(var(--accent-success))' }} />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">{stats.resolved}</div>
-                <div className="text-sm text-white/70">Resolved</div>
+                <div className="text-xl sm:text-2xl font-bold" style={{ color: 'rgb(var(--text-primary))' }}>{stats.resolved}</div>
+                <div className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>Resolved</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Issues List */}
-        <div className="glass rounded-2xl p-6">
+        <div className="card p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h2 className="text-2xl font-bold text-white">My Issues</h2>
+            <h2 className="text-xl sm:text-2xl font-bold font-display" style={{ color: 'rgb(var(--text-primary))' }}>
+              My Issues
+            </h2>
             
             {/* Filter Buttons */}
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                className={`px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
                   filter === 'all'
-                    ? 'bg-white text-purple-600'
-                    : 'bg-white/10 text-white hover:bg-white/20'
+                    ? 'btn-primary'
+                    : 'hover:scale-105'
                 }`}
+                style={filter === 'all' ? {} : {
+                  backgroundColor: 'rgb(var(--bg-tertiary))',
+                  border: '2px solid rgb(var(--border-primary))',
+                  color: 'rgb(var(--text-primary))',
+                }}
               >
                 All ({stats.total})
               </button>
@@ -190,11 +227,16 @@ export default function ProfilePage() {
                 <button
                   key={status.value}
                   onClick={() => setFilter(status.value)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition ${
+                  className={`px-4 py-2 rounded-xl font-semibold transition-all duration-300 text-white ${
                     filter === status.value
                       ? status.color
-                      : 'bg-white/10 text-white hover:bg-white/20'
+                      : 'hover:scale-105'
                   }`}
+                  style={filter === status.value ? {} : {
+                    backgroundColor: 'rgb(var(--bg-tertiary))',
+                    border: '2px solid rgb(var(--border-primary))',
+                    color: 'rgb(var(--text-primary))',
+                  }}
                 >
                   {status.label} ({issues.filter((i) => i.status === status.value).length})
                 </button>
@@ -205,15 +247,15 @@ export default function ProfilePage() {
           {/* Issues Grid */}
           {filteredIssues.length === 0 ? (
             <div className="text-center py-12">
-              <MapPin size={48} className="text-white/30 mx-auto mb-4" />
-              <p className="text-white/70 text-lg">
+              <MapPin size={48} className="mx-auto mb-4" style={{ color: 'rgb(var(--text-tertiary))' }} />
+              <p className="text-base sm:text-lg mb-4" style={{ color: 'rgb(var(--text-secondary))' }}>
                 {filter === 'all' 
                   ? "You haven't reported any issues yet"
                   : `No ${filter} issues`}
               </p>
               <button
                 onClick={() => router.push('/')}
-                className="mt-4 px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-white/90 transition"
+                className="btn-primary"
               >
                 Report an Issue
               </button>
@@ -228,13 +270,21 @@ export default function ProfilePage() {
                   <div
                     key={issue._id}
                     onClick={() => router.push(`/issues/${issue._id}`)}
-                    className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition cursor-pointer"
+                    className="rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                    style={{
+                      backgroundColor: 'rgb(var(--bg-secondary))',
+                      border: '2px solid rgb(var(--border-primary))',
+                    }}
                   >
                     <div className="flex items-start gap-3 mb-3">
                       <span className="text-2xl">{category?.icon}</span>
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold line-clamp-2">{issue.title}</h3>
-                        <p className="text-white/60 text-sm">{category?.label}</p>
+                        <h3 className="font-semibold line-clamp-2 mb-1" style={{ color: 'rgb(var(--text-primary))' }}>
+                          {issue.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>
+                          {category?.label}
+                        </p>
                       </div>
                     </div>
 
@@ -247,10 +297,10 @@ export default function ProfilePage() {
                     )}
 
                     <div className="flex items-center justify-between">
-                      <span className={`text-xs px-3 py-1 rounded-full ${statusInfo?.color}`}>
+                      <span className={`text-xs px-3 py-1 rounded-full text-white ${statusInfo?.color}`}>
                         {statusInfo?.label}
                       </span>
-                      <span className="text-white/60 text-xs">
+                      <span className="text-xs" style={{ color: 'rgb(var(--text-tertiary))' }}>
                         {format(new Date(issue.createdAt), 'MMM d')}
                       </span>
                     </div>

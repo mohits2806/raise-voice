@@ -60,27 +60,58 @@ export default function IssueForm({ onClose, selectedLocation }: IssueFormProps)
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Report an Issue</h2>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+      onClick={onClose}
+    >
+      <div 
+        className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div 
+          className="sticky top-0 p-6 flex items-center justify-between z-10"
+          style={{
+            backgroundColor: 'rgb(var(--bg-primary))',
+            borderBottom: '2px solid rgb(var(--border-primary))',
+          }}
+        >
+          <h2 className="text-2xl font-bold font-display" style={{ color: 'rgb(var(--text-primary))' }}>
+            Report an Issue
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition"
+            className="p-2 rounded-full transition-all duration-300 hover:scale-110"
+            style={{
+              backgroundColor: 'rgb(var(--bg-secondary))',
+              color: 'rgb(var(--text-primary))',
+            }}
           >
             <X size={24} />
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            <div 
+              className="p-4 rounded-xl text-sm sm:text-base animate-slide-down"
+              style={{
+                backgroundColor: 'rgba(var(--accent-error), 0.1)',
+                border: '1px solid rgb(var(--accent-error))',
+                color: 'rgb(var(--accent-error))',
+              }}
+            >
               {error}
             </div>
           )}
 
+          {/* Title */}
           <div>
-            <label className="block text-sm font-medium mb-2">Title *</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Title *
+            </label>
             <input
               type="text"
               required
@@ -89,16 +120,31 @@ export default function IssueForm({ onClose, selectedLocation }: IssueFormProps)
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Brief description of the issue"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-3 rounded-xl font-medium transition-all duration-300 outline-none"
+              style={{
+                backgroundColor: 'rgb(var(--bg-tertiary))',
+                border: '2px solid rgb(var(--border-primary))',
+                color: 'rgb(var(--text-primary))',
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
             />
           </div>
 
+          {/* Category */}
           <div>
-            <label className="block text-sm font-medium mb-2">Category *</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Category *
+            </label>
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-3 rounded-xl font-medium transition-all duration-300 outline-none"
+              style={{
+                backgroundColor: 'rgb(var(--bg-tertiary))',
+                border: '2px solid rgb(var(--border-primary))',
+                color: 'rgb(var(--text-primary))',
+              }}
             >
               {ISSUE_CATEGORIES.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -108,8 +154,11 @@ export default function IssueForm({ onClose, selectedLocation }: IssueFormProps)
             </select>
           </div>
 
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Description *</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Description *
+            </label>
             <textarea
               required
               minLength={10}
@@ -118,46 +167,70 @@ export default function IssueForm({ onClose, selectedLocation }: IssueFormProps)
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Provide detailed information about the issue"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+              className="w-full px-4 py-3 rounded-xl font-medium transition-all duration-300 outline-none resize-none"
+              style={{
+                backgroundColor: 'rgb(var(--bg-tertiary))',
+                border: '2px solid rgb(var(--border-primary))',
+                color: 'rgb(var(--text-primary))',
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm mt-1" style={{ color: 'rgb(var(--text-tertiary))' }}>
               {formData.description.length}/1000 characters
             </p>
           </div>
 
+          {/* Location */}
           <div>
-            <label className="block text-sm font-medium mb-2">Location *</label>
-            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-              <MapPin size={20} className="text-blue-600" />
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Location *
+            </label>
+            <div 
+              className="flex items-center gap-2 p-3 rounded-xl"
+              style={{ backgroundColor: 'rgb(var(--bg-secondary))' }}
+            >
+              <MapPin size={20} style={{ color: 'rgb(var(--accent-primary))' }} />
               {selectedLocation ? (
-                <span className="text-sm">
+                <span className="text-sm font-medium" style={{ color: 'rgb(var(--text-primary))' }}>
                   {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
                 </span>
               ) : (
-                <span className="text-sm text-gray-500">Click on the map to select location</span>
+                <span className="text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>
+                  Click on the map to select location
+                </span>
               )}
             </div>
           </div>
 
+          {/* Images */}
           <div>
-            <label className="block text-sm font-medium mb-2">Images (Optional)</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Images (Optional)
+            </label>
             <ImageUpload
               onImagesChange={(urls) => setFormData({ ...formData, images: urls })}
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02]"
+              style={{
+                backgroundColor: 'rgb(var(--bg-tertiary))',
+                border: '2px solid rgb(var(--border-primary))',
+                color: 'rgb(var(--text-primary))',
+              }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !selectedLocation}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

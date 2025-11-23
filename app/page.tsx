@@ -145,115 +145,107 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-8 animate-slide-up">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            Make Your Voice Heard
+      <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
+        <div className="text-center mb-8 sm:mb-12 animate-slide-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 sm:mb-6">
+            <span className="text-gradient">Make Your Voice Heard</span>
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-6">
-            Report community issues and help improve your neighborhood
+          <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto"
+            style={{ color: 'rgb(var(--text-secondary))' }}>
+            Report community issues and help improve your neighborhood with our interactive mapping platform
           </p>
           {!session && (
             <button
               onClick={() => router.push('/auth/signup')}
-              className="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
+              className="btn-primary text-base sm:text-lg animate-bounce-in"
             >
-              Get Started
+              Get Started Today
             </button>
           )}
         </div>
 
         {/* Filters */}
-        <div className="glass rounded-2xl p-6 mb-6 animate-fade-in">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="glass-light rounded-2xl p-4 sm:p-6 mb-6 animate-fade-in" 
+          style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}>
+          <div className="flex flex-col gap-4">
+            {/* Search Bar */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={20} />
+                <Search 
+                  className="absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300" 
+                  size={20}
+                  style={{ color: 'rgb(var(--text-tertiary))' }}
+                />
                 <input
                   type="text"
                   placeholder="Search issues..."
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className="w-full pl-12 pr-4 py-3 sm:py-3.5 rounded-xl font-medium transition-all duration-300"
+                  style={{
+                    backgroundColor: 'rgb(var(--bg-tertiary))',
+                    border: '2px solid rgb(var(--border-primary))',
+                    color: 'rgb(var(--text-primary))',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
                 />
               </div>
             </div>
 
-            <select
-              value={filters.category}
-              onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-              className="px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-            >
-              <option value="all" className="bg-purple-900">All Categories</option>
-              {ISSUE_CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value} className="bg-purple-900">
-                  {cat.icon} {cat.label}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-            >
-              <option value="all" className="bg-purple-900">All Statuses</option>
-              {ISSUE_STATUSES.map((status) => (
-                <option key={status.value} value={status.value} className="bg-purple-900">
-                  {status.label}
-                </option>
-              ))}
-            </select>
-
-            {userLocation && (
-              <button
-                onClick={() => setFilters({ ...filters, nearMe: !filters.nearMe })}
-                className={`px-4 py-3 rounded-lg font-semibold transition ${
-                  filters.nearMe
-                    ? 'bg-white text-purple-600'
-                    : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-                }`}
-              >
-                📍 Near Me {filters.nearMe && `(${filters.radius}km)`}
-              </button>
-            )}
-
-            {filters.nearMe && userLocation && (
+            {/* Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
               <select
-                value={filters.radius}
-                onChange={(e) => setFilters({ ...filters, radius: Number(e.target.value) })}
-                className="px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                <option value={1} className="bg-purple-900">1 km</option>
-                <option value={2} className="bg-purple-900">2 km</option>
-                <option value={5} className="bg-purple-900">5 km</option>
-                <option value={10} className="bg-purple-900">10 km</option>
-                <option value={25} className="bg-purple-900">25 km</option>
-              </select>
-            )}
-          </div>
-
-          <div className="mt-4 flex items-center justify-between text-white/80 text-sm">
-            <span>
-              Showing {filteredIssues.length} of {issues.length} issues
-            </span>
-            {session && (
-              <button
-                onClick={() => {
-                  setSelectedLocation(null);
-                  setShowIssueForm(true);
+                value={filters.category}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="px-4 py-3 rounded-xl font-medium transition-all duration-300"
+                style={{
+                  backgroundColor: 'rgb(var(--bg-tertiary))',
+                  border: '2px solid rgb(var(--border-primary))',
+                  color: 'rgb(var(--text-primary))',
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-white/90 transition font-semibold"
               >
-                <Plus size={20} />
-                Report Issue
-              </button>
-            )}
+                <option value="all">All Categories</option>
+                {ISSUE_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.icon} {cat.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="px-4 py-3 rounded-xl font-medium transition-all duration-300"
+                style={{
+                  backgroundColor: 'rgb(var(--bg-tertiary))',
+                  border: '2px solid rgb(var(--border-primary))',
+                  color: 'rgb(var(--text-primary))',
+                }}
+              >
+                <option value="all">All Statuses</option>
+                {ISSUE_STATUSES.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Results Count */}
+            <div className="flex items-center justify-between text-sm font-medium pt-2"
+              style={{ color: 'rgb(var(--text-secondary))' }}>
+              <span>
+                Showing <span className="font-bold" style={{ color: 'rgb(var(--accent-primary))' }}>
+                  {filteredIssues.length}
+                </span> of {issues.length} issues
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Map */}
-        <div className="glass rounded-2xl p-6 animate-fade-in">
+        <div className="animate-fade-in mb-8" style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}>
           <InteractiveMap
             issues={filteredIssues}
             onMapClick={handleMapClick}
@@ -261,36 +253,57 @@ export default function HomePage() {
             userLocation={userLocation}
             height="600px"
           />
-          <p className="text-white/70 text-sm mt-4 text-center">
+          <p className="text-center text-sm mt-4" style={{ color: 'rgb(var(--text-tertiary))' }}>
             {session
               ? 'Click on the map to place a marker and report an issue'
-              : 'Sign in to report issues'}
+              : 'Sign in to report issues and help improve your community'}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          <div className="glass rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-white mb-2">{issues.length}</div>
-            <div className="text-white/70 text-sm">Total Issues</div>
-          </div>
-          <div className="glass rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-green-400 mb-2">
-              {issues.filter((i: any) => i.status === 'resolved').length}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 stagger-children">
+          <div className="card group cursor-default">
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold mb-2 text-gradient-primary">
+                {issues.length}
+              </div>
+              <div className="text-sm sm:text-base font-medium" style={{ color: 'rgb(var(--text-secondary))' }}>
+                Total Issues
+              </div>
             </div>
-            <div className="text-white/70 text-sm">Resolved</div>
           </div>
-          <div className="glass rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-yellow-400 mb-2">
-              {issues.filter((i: any) => i.status === 'in-progress').length}
+          
+          <div className="card group cursor-default">
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'rgb(var(--accent-success))' }}>
+                {issues.filter((i: any) => i.status === 'resolved').length}
+              </div>
+              <div className="text-sm sm:text-base font-medium" style={{ color: 'rgb(var(--text-secondary))' }}>
+                Resolved
+              </div>
             </div>
-            <div className="text-white/70 text-sm">In Progress</div>
           </div>
-          <div className="glass rounded-xl p-6 text-center">
-            <div className="text-3xl font-bold text-red-400 mb-2">
-              {issues.filter((i: any) => i.status === 'open').length}
+          
+          <div className="card group cursor-default">
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'rgb(var(--accent-warning))' }}>
+                {issues.filter((i: any) => i.status === 'in-progress').length}
+              </div>
+              <div className="text-sm sm:text-base font-medium" style={{ color: 'rgb(var(--text-secondary))' }}>
+                In Progress
+              </div>
             </div>
-            <div className="text-white/70 text-sm">Open</div>
+          </div>
+          
+          <div className="card group cursor-default">
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'rgb(var(--accent-error))' }}>
+                {issues.filter((i: any) => i.status === 'open').length}
+              </div>
+              <div className="text-sm sm:text-base font-medium" style={{ color: 'rgb(var(--text-secondary))' }}>
+                Open
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -46,15 +46,24 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500">
-      <div className="glass w-full max-w-md p-8 rounded-2xl shadow-2xl animate-scale-in">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="card w-full max-w-md p-8 animate-scale-in">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-white/80">Sign in to RaiseVoice</p>
+          <h1 className="text-3xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+            Welcome Back
+          </h1>
+          <p style={{ color: 'rgb(var(--text-secondary))' }}>Sign in to RaiseVoice</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-2 text-white">
+          <div 
+            className="mb-6 p-4 rounded-lg flex items-center gap-2 animate-slide-down"
+            style={{
+              backgroundColor: 'rgba(var(--accent-error), 0.1)',
+              border: '1px solid rgb(var(--accent-error))',
+              color: 'rgb(var(--accent-error))',
+            }}
+          >
             <AlertCircle size={20} />
             <span>{error}</span>
           </div>
@@ -62,30 +71,56 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Email</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Email
+            </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={20} />
+              <Mail 
+                className="absolute left-3 top-1/2 -translate-y-1/2" 
+                size={20}
+                style={{ color: 'rgb(var(--text-tertiary))' }}
+              />
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
+                style={{
+                  backgroundColor: 'rgb(var(--bg-tertiary))',
+                  border: '2px solid rgb(var(--border-primary))',
+                  color: 'rgb(var(--text-primary))',
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
                 placeholder="your@email.com"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Password</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+              Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" size={20} />
+              <Lock 
+                className="absolute left-3 top-1/2 -translate-y-1/2" 
+                size={20}
+                style={{ color: 'rgb(var(--text-tertiary))' }}
+              />
               <input
                 type="password"
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
+                style={{
+                  backgroundColor: 'rgb(var(--bg-tertiary))',
+                  border: '2px solid rgb(var(--border-primary))',
+                  color: 'rgb(var(--text-primary))',
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
                 placeholder="••••••••"
               />
             </div>
@@ -94,7 +129,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -108,14 +143,19 @@ export default function SignInPage() {
         </form>
 
         <div className="my-6 flex items-center gap-3">
-          <div className="flex-1 h-px bg-white/20"></div>
-          <span className="text-white/60 text-sm">OR</span>
-          <div className="flex-1 h-px bg-white/20"></div>
+          <div className="flex-1 h-px" style={{ backgroundColor: 'rgb(var(--border-primary))' }}></div>
+          <span className="text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>OR</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: 'rgb(var(--border-primary))' }}></div>
         </div>
 
         <button
           onClick={handleGoogleSignIn}
-          className="w-full py-3 bg-white rounded-lg font-semibold hover:bg-white/90 transition flex items-center justify-center gap-3"
+          className="w-full py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 hover:scale-[1.02]"
+          style={{
+            backgroundColor: 'rgb(var(--bg-tertiary))',
+            border: '2px solid rgb(var(--border-primary))',
+            color: 'rgb(var(--text-primary))',
+          }}
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -138,9 +178,9 @@ export default function SignInPage() {
           Continue with Google
         </button>
 
-        <p className="text-center mt-6 text-white/80 text-sm">
+        <p className="text-center mt-6 text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>
           Don't have an account?{' '}
-          <Link href="/auth/signup" className="text-white font-semibold hover:underline">
+          <Link href="/auth/signup" className="font-semibold hover:underline" style={{ color: 'rgb(var(--accent-primary))' }}>
             Sign Up
           </Link>
         </p>

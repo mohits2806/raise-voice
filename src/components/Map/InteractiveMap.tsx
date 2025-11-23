@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { IIssue } from '@/types';
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, ISSUE_CATEGORIES } from '@/lib/constants';
+import LocationButton from './LocationButton';
 
 interface InteractiveMapProps {
   issues: IIssue[];
@@ -103,6 +104,29 @@ function MapClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => 
   return null;
 }
 
+// Component to handle map panning
+function MapController({ userLocation, shouldCenter }: { userLocation: { lat: number; lng: number } | null | undefined; shouldCenter: boolean }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (shouldCenter && userLocation && map) {
+      // Wait for map to be ready before flying
+      map.whenReady(() => {
+        try {
+          map.flyTo([userLocation.lat, userLocation.lng], 15, {
+            duration: 1.5,
+            easeLinearity: 0.5,
+          });
+        } catch (error) {
+          console.error('Error flying to location:', error);
+        }
+      });
+    }
+  }, [shouldCenter, userLocation, map]);
+  
+  return null;
+}
+
 export default function InteractiveMap({
   issues,
   onMapClick,
@@ -112,8 +136,35 @@ export default function InteractiveMap({
   height = '600px',
 }: InteractiveMapProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [shouldCenterOnUser, setShouldCenterOnUser] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const containerIdRef = useRef(`map-${Math.random().toString(36).substr(2, 9)}`);
   const mapCenter = initialCenter || userLocation || DEFAULT_MAP_CENTER;
+
+  const handleLocationClick = () => {
+    if (userLocation) {
+      setShouldCenterOnUser(true);
+      setTimeout(() => setShouldCenterOnUser(false), 100);
+    } else {
+      setIsGettingLocation(true);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setIsGettingLocation(false);
+            // Location will be handled by parent component
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            setIsGettingLocation(false);
+            alert('Unable to get your location. Please enable location services.');
+          }
+        );
+      } else {
+        setIsGettingLocation(false);
+        alert('Geolocation is not supported by your browser.');
+      }
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -131,7 +182,11 @@ export default function InteractiveMap({
   }
 
   return (
-    <div id={containerIdRef.current} style={{ height }} className="w-full rounded-lg overflow-hidden shadow-lg">
+    <div 
+      id={containerIdRef.current} 
+      className="relative w-full rounded-2xl overflow-hidden" 
+      style={{ height, boxShadow: 'var(--shadow-xl)' }}
+    >
       <MapContainer
         center={mapCenter}
         zoom={userLocation || initialCenter ? 13 : DEFAULT_MAP_ZOOM}
@@ -139,6 +194,7 @@ export default function InteractiveMap({
         className="z-0"
         scrollWheelZoom={true}
       >
+        <MapController userLocation={userLocation} shouldCenter={shouldCenterOnUser} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -225,6 +281,14 @@ export default function InteractiveMap({
           </Marker>
         )}
       </MapContainer>
+      
+      {/* Floating Location Button */}
+      <div className="absolute bottom-6 right-6 z-[1000]">
+        <LocationButton 
+          onLocationClick={handleLocationClick}
+          isGettingLocation={isGettingLocation}
+        />
+      </div>
     </div>
   );
 }

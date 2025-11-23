@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { auth } from '@/lib/auth';
 import SessionProvider from '@/components/Providers/SessionProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import Header from '@/components/Layout/Header';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -43,10 +44,14 @@ export default async function RootLayout({
       <head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       </head>
-      <body className={`${inter.variable} ${inter.className} min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500`}>
+      <body className={`${inter.variable} ${inter.className} min-h-screen transition-colors duration-300`}>
         <SessionProvider session={session}>
-          <Header />
-          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+          <ThemeProvider>
+            <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+              <Header />
+              <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            </div>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>

@@ -74,25 +74,34 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
+      {/* Upload Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading || images.length >= maxImages}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+          className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex-1"
+          style={{
+            backgroundColor: 'rgb(var(--accent-primary))',
+            color: 'white',
+          }}
         >
           <Upload size={20} />
-          Upload
+          Upload Images
         </button>
 
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
           disabled={uploading || images.length >= maxImages}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+          className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex-1"
+          style={{
+            backgroundColor: 'rgb(var(--accent-secondary))',
+            color: 'white',
+          }}
         >
           <Camera size={20} />
-          Camera
+          Take Photo
         </button>
 
         <input
@@ -114,32 +123,52 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
         />
       </div>
 
+      {/* Error Message */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+        <div 
+          className="p-3 rounded-xl text-sm animate-slide-down"
+          style={{
+            backgroundColor: 'rgba(var(--accent-error), 0.1)',
+            border: '1px solid rgb(var(--accent-error))',
+            color: 'rgb(var(--accent-error))',
+          }}
+        >
           {error}
         </div>
       )}
 
+      {/* Uploading Indicator */}
       {uploading && (
-        <div className="flex items-center gap-2 text-gray-600">
+        <div className="flex items-center gap-2" style={{ color: 'rgb(var(--text-secondary))' }}>
           <Loader2 className="animate-spin" size={20} />
-          <span>Uploading images...</span>
+          <span className="text-sm font-medium">Uploading images...</span>
         </div>
       )}
 
+      {/* Image Grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 animate-fade-in">
           {images.map((url, index) => (
-            <div key={index} className="relative group">
+            <div 
+              key={index} 
+              className="relative group rounded-xl overflow-hidden"
+              style={{
+                border: '2px solid rgb(var(--border-primary))',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
               <img
                 src={url}
                 alt={`Upload ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg"
+                className="w-full h-32 object-cover"
               />
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                className="absolute top-2 right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 text-white"
+                style={{
+                  backgroundColor: 'rgb(var(--accent-error))',
+                }}
               >
                 <X size={16} />
               </button>
@@ -148,7 +177,8 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
         </div>
       )}
 
-      <p className="text-sm text-gray-500">
+      {/* Image Counter */}
+      <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>
         {images.length}/{maxImages} images uploaded
       </p>
     </div>

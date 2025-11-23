@@ -88,9 +88,17 @@ export default function IssueDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="glass rounded-2xl p-12 animate-pulse">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
-          <p className="text-white text-lg font-medium mt-4">Loading issue...</p>
+        <div className="card p-12 animate-pulse">
+          <div 
+            className="w-16 h-16 border-4 rounded-full animate-spin mx-auto"
+            style={{
+              borderColor: 'rgb(var(--border-primary))',
+              borderTopColor: 'rgb(var(--accent-primary))',
+            }}
+          ></div>
+          <p className="text-lg font-medium mt-4" style={{ color: 'rgb(var(--text-primary))' }}>
+            Loading issue...
+          </p>
         </div>
       </div>
     );
@@ -111,75 +119,96 @@ export default function IssueDetailsPage() {
         {/* Back Button */}
         <button
           onClick={() => router.push('/')}
-          className="glass px-4 py-2 rounded-lg flex items-center gap-2 text-white hover:bg-white/20 transition mb-6"
+          className="card px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 hover:scale-[1.02] mb-6"
+          style={{ color: 'rgb(var(--text-primary))' }}
         >
           <ArrowLeft size={20} />
           Back to Map
         </button>
 
         {/* Main Content */}
-        <div className="glass rounded-2xl p-8 mb-6 animate-fade-in">
+        <div className="card p-6 sm:p-8 mb-6 animate-fade-in">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-4xl">{category?.icon}</span>
                 <div>
-                  <h1 className="text-3xl font-bold text-white">{issue.title}</h1>
-                  <p className="text-white/70">{category?.label}</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold font-display" style={{ color: 'rgb(var(--text-primary))' }}>
+                    {issue.title}
+                  </h1>
+                  <p className="text-sm sm:text-base" style={{ color: 'rgb(var(--text-secondary))' }}>
+                    {category?.label}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Status Badge */}
-            <div className={`px-4 py-2 rounded-lg font-semibold ${statusInfo?.color || 'bg-gray-500'}`}>
+            <div className={`px-4 py-2 rounded-xl font-semibold text-white ${statusInfo?.color || 'bg-gray-500'}`}>
               {statusInfo?.label}
             </div>
           </div>
 
           {/* Meta Information */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="flex items-center gap-3 text-white/90">
-              <User size={20} className="text-white/60" />
+            <div className="flex items-center gap-3">
+              <User size={20} style={{ color: 'rgb(var(--text-tertiary))' }} />
               <div>
-                <p className="text-sm text-white/60">Reported by</p>
-                <p className="font-semibold">{issue.userId.name || 'Anonymous'}</p>
+                <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>Reported by</p>
+                <p className="font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
+                  {issue.userId.name || 'Anonymous'}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-white/90">
-              <Calendar size={20} className="text-white/60" />
+            <div className="flex items-center gap-3">
+              <Calendar size={20} style={{ color: 'rgb(var(--text-tertiary))' }} />
               <div>
-                <p className="text-sm text-white/60">Created</p>
-                <p className="font-semibold">{format(new Date(issue.createdAt), 'MMM d, yyyy')}</p>
+                <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>Created</p>
+                <p className="font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
+                  {format(new Date(issue.createdAt), 'MMM d, yyyy')}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-white/90">
-              <MapPin size={20} className="text-white/60" />
+            <div className="flex items-center gap-3">
+              <MapPin size={20} style={{ color: 'rgb(var(--text-tertiary))' }} />
               <div>
-                <p className="text-sm text-white/60">Location</p>
-                <p className="font-semibold">{issue.address || 'View on map'}</p>
+                <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>Location</p>
+                <p className="font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
+                  {issue.address || 'View on map'}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Description */}
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white mb-3">Description</h2>
-            <p className="text-white/90 whitespace-pre-wrap">{issue.description}</p>
+            <h2 className="text-lg sm:text-xl font-bold font-display mb-3" style={{ color: 'rgb(var(--text-primary))' }}>
+              Description
+            </h2>
+            <p className="whitespace-pre-wrap" style={{ color: 'rgb(var(--text-secondary))' }}>
+              {issue.description}
+            </p>
           </div>
 
           {/* Images */}
           {issue.images && issue.images.length > 0 && (
             <div className="mb-6">
-              <h2 className="text-xl font-bold text-white mb-3">Images ({issue.images.length})</h2>
+              <h2 className="text-lg sm:text-xl font-bold font-display mb-3" style={{ color: 'rgb(var(--text-primary))' }}>
+                Images ({issue.images.length})
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {issue.images.map((image: string, index: number) => (
                   <div
                     key={index}
-                    className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition"
+                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-300 hover:scale-105"
                     onClick={() => setSelectedImage(image)}
+                    style={{
+                      border: '2px solid rgb(var(--border-primary))',
+                      boxShadow: 'var(--shadow-md)',
+                    }}
                   >
                     <img
                       src={image}
@@ -194,8 +223,10 @@ export default function IssueDetailsPage() {
 
           {/* Map */}
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white mb-3">Location on Map</h2>
-            <div className="rounded-lg overflow-hidden">
+            <h2 className="text-lg sm:text-xl font-bold font-display mb-3" style={{ color: 'rgb(var(--text-primary))' }}>
+              Location on Map
+            </h2>
+            <div className="rounded-xl overflow-hidden">
               <InteractiveMap 
                 issues={[issue]} 
                 height="400px" 
@@ -206,23 +237,30 @@ export default function IssueDetailsPage() {
 
           {/* Owner Actions */}
           {isOwner && (
-            <div className="border-t border-white/20 pt-6">
-              <h2 className="text-xl font-bold text-white mb-4">Manage Issue</h2>
+            <div className="border-t pt-6" style={{ borderColor: 'rgb(var(--border-primary))' }}>
+              <h2 className="text-lg sm:text-xl font-bold font-display mb-4" style={{ color: 'rgb(var(--text-primary))' }}>
+                Manage Issue
+              </h2>
               
               {/* Status Update */}
               <div className="mb-4">
-                <p className="text-white/70 mb-2">Update Status:</p>
+                <p className="mb-2" style={{ color: 'rgb(var(--text-secondary))' }}>Update Status:</p>
                 <div className="flex flex-wrap gap-2">
                   {ISSUE_STATUSES.map((status) => (
                     <button
                       key={status.value}
                       onClick={() => handleStatusUpdate(status.value)}
                       disabled={updating || issue.status === status.value}
-                      className={`px-4 py-2 rounded-lg font-semibold transition ${
+                      className={`px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${
                         issue.status === status.value
-                          ? status.color
-                          : 'bg-white/10 hover:bg-white/20 text-white'
+                          ? status.color + ' text-white'
+                          : 'hover:scale-105'
                       } disabled:opacity-50`}
+                      style={issue.status === status.value ? {} : {
+                        backgroundColor: 'rgb(var(--bg-tertiary))',
+                        border: '2px solid rgb(var(--border-primary))',
+                        color: 'rgb(var(--text-primary))',
+                      }}
                     >
                       {status.label}
                     </button>
@@ -233,7 +271,10 @@ export default function IssueDetailsPage() {
               {/* Delete Button */}
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold flex items-center gap-2 transition"
+                className="px-4 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 hover:scale-[1.02] text-white"
+                style={{
+                  backgroundColor: 'rgb(var(--accent-error))',
+                }}
               >
                 <Trash2 size={18} />
                 Delete Issue
@@ -246,18 +287,22 @@ export default function IssueDetailsPage() {
       {/* Image Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh]">
             <img
               src={selectedImage}
               alt="Full size"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl"
             />
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-sm"
+              className="absolute top-4 right-4 rounded-full p-3 backdrop-blur-sm transition-all duration-300 hover:scale-110 text-white"
+              style={{
+                backgroundColor: 'rgba(var(--bg-tertiary), 0.8)',
+              }}
             >
               ✕
             </button>
