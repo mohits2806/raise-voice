@@ -1,11 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { IIssue } from '@/types';
-import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, ISSUE_CATEGORIES } from '@/lib/constants';
-import LocationButton from './LocationButton';
+import { useEffect, useRef, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import { IIssue } from "@/types";
+import {
+  DEFAULT_MAP_CENTER,
+  DEFAULT_MAP_ZOOM,
+  ISSUE_CATEGORIES,
+} from "@/lib/constants";
+import LocationButton from "./LocationButton";
 
 interface InteractiveMapProps {
   issues: IIssue[];
@@ -17,12 +28,13 @@ interface InteractiveMapProps {
 }
 
 // Fix Leaflet default marker icon issue
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    iconRetinaUrl:
+      "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   });
 }
 
@@ -30,10 +42,14 @@ if (typeof window !== 'undefined') {
 const createCustomIcon = (category: string, status: string) => {
   const categoryData = ISSUE_CATEGORIES.find((c) => c.value === category);
   const color =
-    status === 'resolved' ? '#10b981' : status === 'in-progress' ? '#f59e0b' : '#ef4444';
+    status === "resolved"
+      ? "#10b981"
+      : status === "in-progress"
+      ? "#f59e0b"
+      : "#ef4444";
 
   return L.divIcon({
-    className: 'custom-marker',
+    className: "custom-marker",
     html: `
       <div style="position: relative;">
         <div style="
@@ -49,7 +65,7 @@ const createCustomIcon = (category: string, status: string) => {
           justify-content: center;
         ">
           <span style="transform: rotate(45deg); font-size: 16px;">
-            ${categoryData?.icon || '📍'}
+            ${categoryData?.icon || "📍"}
           </span>
         </div>
       </div>
@@ -63,7 +79,7 @@ const createCustomIcon = (category: string, status: string) => {
 // Create user location marker icon
 const createUserLocationIcon = () => {
   return L.divIcon({
-    className: 'custom-marker',
+    className: "custom-marker",
     html: `
       <div style="position: relative;">
         <div style="
@@ -93,7 +109,11 @@ const createUserLocationIcon = () => {
   });
 };
 
-function MapClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => void }) {
+function MapClickHandler({
+  onClick,
+}: {
+  onClick?: (lat: number, lng: number) => void;
+}) {
   useMapEvents({
     click: (e) => {
       if (onClick) {
@@ -105,9 +125,15 @@ function MapClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => 
 }
 
 // Component to handle map panning
-function MapController({ userLocation, shouldCenter }: { userLocation: { lat: number; lng: number } | null | undefined; shouldCenter: boolean }) {
+function MapController({
+  userLocation,
+  shouldCenter,
+}: {
+  userLocation: { lat: number; lng: number } | null | undefined;
+  shouldCenter: boolean;
+}) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (shouldCenter && userLocation && map) {
       // Wait for map to be ready before flying
@@ -118,12 +144,12 @@ function MapController({ userLocation, shouldCenter }: { userLocation: { lat: nu
             easeLinearity: 0.5,
           });
         } catch (error) {
-          console.error('Error flying to location:', error);
+          console.error("Error flying to location:", error);
         }
       });
     }
   }, [shouldCenter, userLocation, map]);
-  
+
   return null;
 }
 
@@ -133,13 +159,27 @@ export default function InteractiveMap({
   selectedLocation,
   userLocation,
   initialCenter,
-  height = '600px',
+  height = "600px",
 }: InteractiveMapProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [shouldCenterOnUser, setShouldCenterOnUser] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const containerIdRef = useRef(`map-${Math.random().toString(36).substr(2, 9)}`);
+  const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
+  const containerIdRef = useRef(
+    `map-${Math.random().toString(36).substr(2, 9)}`
+  );
   const mapCenter = initialCenter || userLocation || DEFAULT_MAP_CENTER;
+
+  // Auto-center on user location when available
+  useEffect(() => {
+    if (userLocation && !hasCenteredOnce) {
+      setShouldCenterOnUser(true);
+      setHasCenteredOnce(true);
+      // Reset flag after animation to allow manual panning
+      const timer = setTimeout(() => setShouldCenterOnUser(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [userLocation, hasCenteredOnce]);
 
   const handleLocationClick = () => {
     if (userLocation) {
@@ -154,14 +194,16 @@ export default function InteractiveMap({
             // Location will be handled by parent component
           },
           (error) => {
-            console.error('Geolocation error:', error);
+            console.error("Geolocation error:", error);
             setIsGettingLocation(false);
-            alert('Unable to get your location. Please enable location services.');
+            alert(
+              "Unable to get your location. Please enable location services."
+            );
           }
         );
       } else {
         setIsGettingLocation(false);
-        alert('Geolocation is not supported by your browser.');
+        alert("Geolocation is not supported by your browser.");
       }
     }
   };
@@ -182,19 +224,22 @@ export default function InteractiveMap({
   }
 
   return (
-    <div 
-      id={containerIdRef.current} 
-      className="relative w-full rounded-2xl overflow-hidden" 
-      style={{ height, boxShadow: 'var(--shadow-xl)' }}
+    <div
+      id={containerIdRef.current}
+      className="relative w-full rounded-2xl overflow-hidden"
+      style={{ height, boxShadow: "var(--shadow-xl)" }}
     >
       <MapContainer
         center={mapCenter}
         zoom={userLocation || initialCenter ? 13 : DEFAULT_MAP_ZOOM}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         className="z-0"
         scrollWheelZoom={true}
       >
-        <MapController userLocation={userLocation} shouldCenter={shouldCenterOnUser} />
+        <MapController
+          userLocation={userLocation}
+          shouldCenter={shouldCenterOnUser}
+        />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -231,18 +276,23 @@ export default function InteractiveMap({
               <Popup maxWidth={300}>
                 <div className="p-2">
                   <h3 className="font-bold text-lg mb-1">{issue.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{issue.description}</p>
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {issue.description}
+                  </p>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      {ISSUE_CATEGORIES.find((c) => c.value === issue.category)?.label}
+                      {
+                        ISSUE_CATEGORIES.find((c) => c.value === issue.category)
+                          ?.label
+                      }
                     </span>
                     <span
                       className={`text-xs px-2 py-1 rounded text-white ${
-                        issue.status === 'resolved'
-                          ? 'bg-green-500'
-                          : issue.status === 'in-progress'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
+                        issue.status === "resolved"
+                          ? "bg-green-500"
+                          : issue.status === "in-progress"
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
                       }`}
                     >
                       {issue.status}
@@ -274,17 +324,18 @@ export default function InteractiveMap({
               <div className="p-2">
                 <p className="font-semibold">Selected Location</p>
                 <p className="text-sm text-gray-600">
-                  {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
+                  {selectedLocation.lat.toFixed(6)},{" "}
+                  {selectedLocation.lng.toFixed(6)}
                 </p>
               </div>
             </Popup>
           </Marker>
         )}
       </MapContainer>
-      
+
       {/* Floating Location Button */}
       <div className="absolute bottom-6 right-6 z-[1000]">
-        <LocationButton 
+        <LocationButton
           onLocationClick={handleLocationClick}
           isGettingLocation={isGettingLocation}
         />

@@ -56,7 +56,7 @@ export default function Header() {
               <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 style={{ background: 'var(--gradient-primary)', filter: 'blur(8px)', zIndex: -1 }}></div>
             </div>
-            <span className="text-xl font-bold text-gradient-primary hidden sm:inline font-display">
+            <span className="text-xl font-bold text-gradient-primary sm:inline font-display">
               RaiseVoice
             </span>
           </Link>
