@@ -1,162 +1,226 @@
-'use client';
+"use client";
 
-import { signIn } from 'next-auth/react';
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import { signIn } from "next-auth/react";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 export default function SignInPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
-
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
         redirect: false,
       });
-
       if (result?.error) {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
         setLoading(false);
         return;
       }
-
-      router.push('/');
+      router.push("/");
       router.refresh();
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    await signIn('google', { callbackUrl: '/' });
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="card w-full max-w-md p-8 animate-scale-in">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[rgb(var(--bg-primary))] to-[rgb(var(--bg-secondary))]">
+      {/* Toast error */}
+      {error && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 border border-red-300 text-red-800 shadow-md animate-slide-down">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
+      <div className="glass-light w-full max-w-md p-8 rounded-xl shadow-lg animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+          <h1
+            className="text-3xl font-bold font-display mb-2"
+            style={{ color: "rgb(var(--text-primary))" }}
+          >
             Welcome Back
           </h1>
-          <p style={{ color: 'rgb(var(--text-secondary))' }}>Sign in to RaiseVoice</p>
+          <p style={{ color: "rgb(var(--text-secondary))" }}>
+            Sign in to RaiseVoice
+          </p>
         </div>
-
-        {error && (
-          <div 
-            className="mb-6 p-4 rounded-lg flex items-center gap-2 animate-slide-down"
-            style={{
-              backgroundColor: 'rgba(var(--accent-error), 0.1)',
-              border: '1px solid rgb(var(--accent-error))',
-              color: 'rgb(var(--accent-error))',
-            }}
-          >
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium mb-2"
+              style={{ color: "rgb(var(--text-primary))" }}
+            >
               Email
             </label>
             <div className="relative">
-              <Mail 
-                className="absolute left-3 top-1/2 -translate-y-1/2" 
+              <Mail
+                className="absolute left-3 top-1/2 -translate-y-1/2"
                 size={20}
-                style={{ color: 'rgb(var(--text-tertiary))' }}
+                style={{ color: "rgb(var(--text-tertiary))" }}
               />
               <input
+                id="email"
                 type="email"
                 required
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
                 style={{
-                  backgroundColor: 'rgb(var(--bg-tertiary))',
-                  border: '2px solid rgb(var(--border-primary))',
-                  color: 'rgb(var(--text-primary))',
+                  backgroundColor: "rgb(var(--bg-tertiary))",
+                  border: "2px solid rgb(var(--border-primary))",
+                  color: "rgb(var(--text-primary))",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
-                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
+                onFocus={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgb(var(--accent-primary))")
+                }
+                onBlur={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgb(var(--border-primary))")
+                }
                 placeholder="your@email.com"
               />
             </div>
           </div>
-
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium mb-2"
+              style={{ color: "rgb(var(--text-primary))" }}
+            >
               Password
             </label>
             <div className="relative">
-              <Lock 
-                className="absolute left-3 top-1/2 -translate-y-1/2" 
+              <Lock
+                className="absolute left-3 top-1/2 -translate-y-1/2"
                 size={20}
-                style={{ color: 'rgb(var(--text-tertiary))' }}
+                style={{ color: "rgb(var(--text-tertiary))" }}
               />
               <input
-                type="password"
+                id="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                className="w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all duration-300"
                 style={{
-                  backgroundColor: 'rgb(var(--bg-tertiary))',
-                  border: '2px solid rgb(var(--border-primary))',
-                  color: 'rgb(var(--text-primary))',
+                  backgroundColor: "rgb(var(--bg-tertiary))",
+                  border: "2px solid rgb(var(--border-primary))",
+                  color: "rgb(var(--text-primary))",
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(var(--accent-primary))'}
-                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(var(--border-primary))'}
+                onFocus={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgb(var(--accent-primary))")
+                }
+                onBlur={(e) =>
+                  (e.currentTarget.style.borderColor =
+                    "rgb(var(--border-primary))")
+                }
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
           </div>
-
+          {/* Remember Me & Forgot */}
+          <div className="flex items-center justify-between">
+            <label
+              className="flex items-center space-x-2"
+              style={{ color: "rgb(var(--text-primary))" }}
+            >
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="form-checkbox h-4 w-4 text-primary bg-gray-100 border-gray-300 rounded"
+              />
+              <span className="text-sm">Remember me</span>
+            </label>
+            <Link
+              href="/auth/forgot"
+              className="text-sm underline"
+              style={{ color: "rgb(var(--accent-primary))" }}
+            >
+              Forgot password?
+            </Link>
+          </div>
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
-                <Loader2 className="animate-spin" size={20} />
-                Signing in...
+                <Loader2 className="animate-spin" size={20} /> Signing in...
               </>
             ) : (
-              'Sign In'
+              "Sign In"
             )}
           </button>
         </form>
-
-        <div className="my-6 flex items-center gap-3">
-          <div className="flex-1 h-px" style={{ backgroundColor: 'rgb(var(--border-primary))' }}></div>
-          <span className="text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>OR</span>
-          <div className="flex-1 h-px" style={{ backgroundColor: 'rgb(var(--border-primary))' }}></div>
+        {/* Divider */}
+        <div className="my-6 flex items-center">
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "rgb(var(--border-primary))" }}
+          ></div>
+          <span
+            className="px-2 text-sm"
+            style={{ color: "rgb(var(--text-tertiary))" }}
+          >
+            OR
+          </span>
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: "rgb(var(--border-primary))" }}
+          ></div>
         </div>
-
+        {/* Google */}
         <button
           onClick={handleGoogleSignIn}
-          className="w-full py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 hover:scale-[1.02]"
+          className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform"
           style={{
-            backgroundColor: 'rgb(var(--bg-tertiary))',
-            border: '2px solid rgb(var(--border-primary))',
-            color: 'rgb(var(--text-primary))',
+            backgroundColor: "rgb(var(--bg-tertiary))",
+            border: "1px solid rgb(var(--border-primary))",
+            color: "rgb(var(--text-primary))",
           }}
         >
+          {/* Google SVG */}
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
@@ -177,10 +241,17 @@ export default function SignInPage() {
           </svg>
           Continue with Google
         </button>
-
-        <p className="text-center mt-6 text-sm" style={{ color: 'rgb(var(--text-secondary))' }}>
-          Don't have an account?{' '}
-          <Link href="/auth/signup" className="font-semibold hover:underline" style={{ color: 'rgb(var(--accent-primary))' }}>
+        {/* Sign Up Link */}
+        <p
+          className="text-center mt-6 text-sm"
+          style={{ color: "rgb(var(--text-secondary))" }}
+        >
+          Don't have an account?{" "}
+          <Link
+            href="/auth/signup"
+            className="font-semibold underline"
+            style={{ color: "rgb(var(--accent-primary))" }}
+          >
             Sign Up
           </Link>
         </p>
