@@ -6,9 +6,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         // Check authentication and admin role
         const session = await auth();
         const adminCheck = await requireAdmin(session);
@@ -33,7 +34,7 @@ export async function PATCH(
         }
 
         const issue = await Issue.findByIdAndUpdate(
-            params.id,
+            id,
             { status },
             { new: true }
         ).populate('userId', 'name email');
@@ -57,9 +58,10 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         // Check authentication and admin role
         const session = await auth();
         const adminCheck = await requireAdmin(session);
@@ -73,7 +75,7 @@ export async function DELETE(
 
         await dbConnect();
 
-        const issue = await Issue.findByIdAndDelete(params.id);
+        const issue = await Issue.findByIdAndDelete(id);
 
         if (!issue) {
             return NextResponse.json(
