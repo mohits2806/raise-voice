@@ -26,6 +26,7 @@ export interface IIssue extends Document {
   address?: string;
   images: string[];
   userId: Types.ObjectId;
+  isAnonymous: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +50,7 @@ export interface CreateIssueInput {
   longitude: number;
   address?: string;
   images?: string[];
+  isAnonymous?: boolean;
 }
 
 export interface IssueWithUser extends IIssue {

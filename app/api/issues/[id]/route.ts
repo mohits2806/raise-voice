@@ -16,7 +16,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ issue }, { status: 200 });
+        // Always anonymize - never expose personal info (100% anonymous USP)
+        const responseIssue = issue.toObject();
+        responseIssue.userId = {
+            _id: responseIssue.userId._id,
+            name: 'Anonymous User',
+            image: undefined,
+        } as any;
+
+        return NextResponse.json({ issue: responseIssue }, { status: 200 });
     } catch (error) {
         console.error('Fetch issue error:', error);
         return NextResponse.json({ error: 'Failed to fetch issue' }, { status: 500 });
@@ -91,6 +99,28 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         // Check if user owns the issue
         if (issueToDelete.userId.toString() !== session.user.id) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        // Delete images from Cloudinary if they exist
+        if (issueToDelete.images && issueToDelete.images.length > 0) {
+            try {
+                for (const imageUrl of issueToDelete.images) {
+                    // Extract public_id from Cloudinary URL
+                    const urlParts = imageUrl.split('/');
+                    const filename = urlParts[urlParts.length - 1];
+                    const public_id = filename.split('.')[0];
+                    
+                    // Make request to delete endpoint
+                    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/delete-image`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ public_id }),
+                    });
+                }
+            } catch (imgError) {
+                console.error('Error deleting images from Cloudinary:', imgError);
+                // Continue with issue deletion even if image deletion fails
+            }
         }
 
         await Issue.findByIdAndDelete(id);

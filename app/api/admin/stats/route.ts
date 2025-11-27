@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
             Issue.find()
                 .sort({ createdAt: -1 })
                 .limit(10)
-                .populate('userId', 'name email')
+                .populate('userId', '')
                 .lean(),
         ]);
 
@@ -72,8 +72,7 @@ export async function GET(req: NextRequest) {
                 status: issue.status,
                 createdAt: issue.createdAt,
                 user: {
-                    name: issue.userId?.name || 'Unknown',
-                    email: issue.userId?.email || '',
+                    name: "Anonymous User",
                 },
             })),
         };

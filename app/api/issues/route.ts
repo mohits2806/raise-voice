@@ -30,7 +30,17 @@ export async function GET(request: Request) {
             .limit(limit)
             .lean();
 
-        return NextResponse.json({ issues }, { status: 200 });
+        // Always anonymize user data - never expose personal info (USP: 100% anonymous)
+        const sanitizedIssues = issues.map((issue: any) => ({
+            ...issue,
+            userId: {
+                _id: issue.userId._id,
+                name: 'Anonymous User',
+                image: undefined,
+            }
+        }));
+
+        return NextResponse.json({ issues: sanitizedIssues }, { status: 200 });
     } catch (error) {
         console.error('Fetch issues error:', error);
         return NextResponse.json({ error: 'Failed to fetch issues' }, { status: 500 });
@@ -66,11 +76,22 @@ export async function POST(request: Request) {
             images: validatedData.images || [],
             userId: session.user.id,
             status: 'open',
+            isAnonymous: validatedData.isAnonymous !== undefined ? validatedData.isAnonymous : true,
         });
 
         const populatedIssue = await Issue.findById(issue._id).populate('userId', 'name email image');
 
-        return NextResponse.json({ issue: populatedIssue }, { status: 201 });
+        // Always anonymize - never expose personal info
+        const responseIssue = populatedIssue?.toObject();
+        if (responseIssue) {
+            responseIssue.userId = {
+                _id: responseIssue.userId._id,
+                name: 'Anonymous User',
+                image: undefined,
+            } as any;
+        }
+
+        return NextResponse.json({ issue: responseIssue }, { status: 201 });
     } catch (error: unknown) {
         console.error('Create issue error:', error);
 

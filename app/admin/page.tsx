@@ -137,22 +137,13 @@ export default function AdminDashboard() {
               </div>
 
               {/* Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
                 <Link href="/admin/issues" className="card hover:scale-[1.02] transition-all duration-300">
                   <h3 className="text-xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
                     Manage Issues
                   </h3>
                   <p style={{ color: 'rgb(var(--text-secondary))' }}>
                     View, update status, and delete reported issues
-                  </p>
-                </Link>
-
-                <Link href="/admin/users" className="card hover:scale-[1.02] transition-all duration-300">
-                  <h3 className="text-xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
-                    Manage Users
-                  </h3>
-                  <p style={{ color: 'rgb(var(--text-secondary))' }}>
-                    View users and manage admin roles ({stats.users.total} total)
                   </p>
                 </Link>
               </div>

@@ -60,6 +60,10 @@ const IssueSchema = new Schema<IIssue>(
             ref: 'User',
             required: [true, 'User ID is required'],
         },
+        isAnonymous: {
+            type: Boolean,
+            default: true,
+        },
     },
     {
         timestamps: true,
@@ -72,6 +76,7 @@ IssueSchema.index({ category: 1 });
 IssueSchema.index({ status: 1 });
 IssueSchema.index({ userId: 1 });
 IssueSchema.index({ createdAt: -1 });
+IssueSchema.index({ isAnonymous: 1 });
 
 const Issue: Model<IIssue> = models.Issue || mongoose.model<IIssue>('Issue', IssueSchema);
 

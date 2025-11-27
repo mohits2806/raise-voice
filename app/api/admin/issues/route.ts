@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
         if (category) filter.category = category;
 
         // Fetch issues with pagination
+        // Note: Even admins only see anonymized data - 100% privacy policy
         const [issues, total] = await Promise.all([
             Issue.find(filter)
                 .sort({ createdAt: -1 })
@@ -43,8 +44,18 @@ export async function GET(req: NextRequest) {
             Issue.countDocuments(filter),
         ]);
 
+        // Always anonymize - never expose personal info
+        const sanitizedIssues = issues.map((issue: any) => ({
+            ...issue,
+            userId: {
+                _id: issue.userId._id,
+                name: 'Anonymous User',
+                image: undefined,
+            }
+        }));
+
         return NextResponse.json({
-            issues,
+            issues: sanitizedIssues,
             pagination: {
                 page,
                 limit,

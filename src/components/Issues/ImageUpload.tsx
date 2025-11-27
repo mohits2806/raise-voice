@@ -1,32 +1,37 @@
-'use client';
+"use client";
 
-import { useState, useRef, ChangeEvent } from 'react';
-import { Camera, Upload, X, Loader2 } from 'lucide-react';
-import { validateImage } from '@/lib/validations';
+import { useState, useRef, ChangeEvent } from "react";
+import { Camera, Upload, X, Loader2 } from "lucide-react";
+import { validateImage } from "@/lib/validations";
 
 interface ImageUploadProps {
   onImagesChange: (urls: string[]) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   maxImages?: number;
 }
 
-export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUploadProps) {
+export default function ImageUpload({
+  onImagesChange,
+  onUploadingChange,
+  maxImages = 5,
+}: ImageUploadProps) {
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
+    const response = await fetch("/api/upload", {
+      method: "POST",
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Upload failed');
+      throw new Error("Upload failed");
     }
 
     const data = await response.json();
@@ -37,7 +42,7 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
     const files = event.target.files;
     if (!files) return;
 
-    setError('');
+    setError("");
 
     if (images.length + files.length > maxImages) {
       setError(`Cannot upload more than ${maxImages} images`);
@@ -45,6 +50,7 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
     }
 
     setUploading(true);
+    onUploadingChange?.(true);
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
@@ -60,9 +66,10 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
       setImages(newImages);
       onImagesChange(newImages);
     } catch (err: any) {
-      setError(err.message || 'Failed to upload images');
+      setError(err.message || "Failed to upload images");
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   };
 
@@ -82,8 +89,8 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
           disabled={uploading || images.length >= maxImages}
           className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex-1"
           style={{
-            backgroundColor: 'rgb(var(--accent-primary))',
-            color: 'white',
+            backgroundColor: "rgb(var(--accent-primary))",
+            color: "white",
           }}
         >
           <Upload size={20} />
@@ -96,8 +103,8 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
           disabled={uploading || images.length >= maxImages}
           className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex-1"
           style={{
-            backgroundColor: 'rgb(var(--accent-secondary))',
-            color: 'white',
+            backgroundColor: "rgb(var(--accent-secondary))",
+            color: "white",
           }}
         >
           <Camera size={20} />
@@ -125,12 +132,12 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
 
       {/* Error Message */}
       {error && (
-        <div 
+        <div
           className="p-3 rounded-xl text-sm animate-slide-down"
           style={{
-            backgroundColor: 'rgba(var(--accent-error), 0.1)',
-            border: '1px solid rgb(var(--accent-error))',
-            color: 'rgb(var(--accent-error))',
+            backgroundColor: "rgba(var(--accent-error), 0.1)",
+            border: "1px solid rgb(var(--accent-error))",
+            color: "rgb(var(--accent-error))",
           }}
         >
           {error}
@@ -139,7 +146,10 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
 
       {/* Uploading Indicator */}
       {uploading && (
-        <div className="flex items-center gap-2" style={{ color: 'rgb(var(--text-secondary))' }}>
+        <div
+          className="flex items-center gap-2"
+          style={{ color: "rgb(var(--text-secondary))" }}
+        >
           <Loader2 className="animate-spin" size={20} />
           <span className="text-sm font-medium">Uploading images...</span>
         </div>
@@ -149,12 +159,12 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
       {images.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 animate-fade-in">
           {images.map((url, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="relative group rounded-xl overflow-hidden"
               style={{
-                border: '2px solid rgb(var(--border-primary))',
-                boxShadow: 'var(--shadow-sm)',
+                border: "2px solid rgb(var(--border-primary))",
+                boxShadow: "var(--shadow-sm)",
               }}
             >
               <img
@@ -167,7 +177,7 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
                 onClick={() => removeImage(index)}
                 className="absolute top-2 right-2 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 text-white"
                 style={{
-                  backgroundColor: 'rgb(var(--accent-error))',
+                  backgroundColor: "rgb(var(--accent-error))",
                 }}
               >
                 <X size={16} />
@@ -178,7 +188,10 @@ export default function ImageUpload({ onImagesChange, maxImages = 5 }: ImageUplo
       )}
 
       {/* Image Counter */}
-      <p className="text-xs sm:text-sm" style={{ color: 'rgb(var(--text-tertiary))' }}>
+      <p
+        className="text-xs sm:text-sm"
+        style={{ color: "rgb(var(--text-tertiary))" }}
+      >
         {images.length}/{maxImages} images uploaded
       </p>
     </div>

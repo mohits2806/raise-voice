@@ -9,6 +9,7 @@ export const createIssueSchema = z.object({
     longitude: z.number().min(-180).max(180),
     address: z.string().optional(),
     images: z.array(z.string().url()).max(MAX_IMAGES_PER_ISSUE, `Cannot upload more than ${MAX_IMAGES_PER_ISSUE} images`).optional(),
+    isAnonymous: z.boolean().optional(),
 });
 
 export const updateIssueSchema = z.object({
