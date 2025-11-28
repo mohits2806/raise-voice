@@ -209,7 +209,7 @@ export default function IssueDetailsPage() {
                   className="text-xs sm:text-sm"
                   style={{ color: "rgb(var(--text-tertiary))" }}
                 >
-                  Reported by
+                  Raised by
                 </p>
                 <p
                   className="font-semibold"

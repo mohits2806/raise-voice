@@ -152,7 +152,7 @@ export default function HomePage() {
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto"
             style={{ color: 'rgb(var(--text-secondary))' }}>
-            Report community issues and help improve your neighborhood with our interactive mapping platform
+            Raise community issues and help improve your neighborhood with our interactive mapping platform
           </p>
           {!session && (
             <button

@@ -156,7 +156,7 @@ export default function AdminIssuesPage() {
                       className="text-left py-3 px-4"
                       style={{ color: "rgb(var(--text-primary))" }}
                     >
-                      Reporter
+                      Raised by
                     </th>
                     <th
                       className="text-left py-3 px-4"
