@@ -255,8 +255,8 @@ export default function HomePage() {
           />
           <p className="text-center text-sm mt-4" style={{ color: 'rgb(var(--text-tertiary))' }}>
             {session
-              ? 'Click on the map to place a marker and report an issue'
-              : 'Sign in to report issues and help improve your community'}
+              ? 'Click on the map to place a marker and raise an issue'
+              : 'Sign in to raise issues and help improve your community'}
           </p>
         </div>
 
