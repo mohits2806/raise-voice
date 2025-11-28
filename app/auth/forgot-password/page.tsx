@@ -175,7 +175,7 @@ export default function ForgotPasswordPage() {
               className="w-full px-4 py-3.5 rounded-xl font-medium transition-all duration-300 outline-none focus:ring-2 focus:ring-offset-2"
               style={{
                 backgroundColor: "rgb(var(--bg-tertiary))",
-                border: "2px solid rgb(var(--border-primary))",
+                border: "2px solid rgb(var(--border-secondary))",
                 color: "rgb(var(--text-primary))",
               }}
               onFocus={(e) => {
@@ -187,7 +187,7 @@ export default function ForgotPasswordPage() {
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor =
-                  "rgb(var(--border-primary))";
+                  "rgb(var(--border-secondary))";
                 e.currentTarget.style.transform = "translateY(0)";
                 e.currentTarget.style.boxShadow = "none";
               }}
