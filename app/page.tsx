@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Plus, Filter, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import IssueForm from "@/components/Issues/IssueForm";
-import WelcomeModal from "@/components/WelcomeModal";
 import { ISSUE_CATEGORIES, ISSUE_STATUSES } from "@/lib/constants";
 
 // Dynamic import to avoid SSR issues with Leaflet
@@ -161,9 +160,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Welcome Modal for first-time visitors */}
-      <WelcomeModal />
-
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
         <div className="text-center mb-8 sm:mb-12 animate-slide-up">
