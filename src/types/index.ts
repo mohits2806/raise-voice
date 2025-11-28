@@ -8,6 +8,8 @@ export interface IUser extends Document {
   role: 'user' | 'admin';
   emailVerified?: Date;
   provider?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

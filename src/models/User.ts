@@ -32,6 +32,14 @@ const UserSchema = new Schema<IUser>(
             enum: ['credentials', 'google'],
             default: 'credentials',
         },
+        resetPasswordToken: {
+            type: String,
+            select: false, // Don't return in queries
+        },
+        resetPasswordExpires: {
+            type: Date,
+            select: false,
+        },
     },
     {
         timestamps: true,

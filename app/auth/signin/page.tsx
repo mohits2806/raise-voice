@@ -171,8 +171,8 @@ export default function SignInPage() {
               <span className="text-sm">Remember me</span>
             </label>
             <Link
-              href="/auth/forgot"
-              className="text-sm underline"
+              href="/auth/forgot-password"
+              className="text-sm underline hover:no-underline transition-all duration-300"
               style={{ color: "rgb(var(--accent-primary))" }}
             >
               Forgot password?
