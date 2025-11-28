@@ -12,6 +12,23 @@ export function middleware(request: NextRequest) {
 
     // For API routes, add CORS and security headers
     if (request.nextUrl.pathname.startsWith('/api')) {
+        // If there's an Origin header, validate it
+        if (origin && !allowedOrigins.includes(origin)) {
+            // Reject unauthorized cross-origin requests
+            return new NextResponse(
+                JSON.stringify({ 
+                    error: 'CORS policy: Origin not allowed',
+                    message: 'This API only accepts requests from authorized domains.'
+                }),
+                {
+                    status: 403,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+        }
+
         // Create response
         const response = NextResponse.next();
 
