@@ -146,23 +146,22 @@ _Empowering citizens to report and track local infrastructure issues without fea
 <div align="center">
 
 ### 🏠 Home Page - Interactive Map
-
+<img width="1909" height="825" alt="image" src="https://github.com/user-attachments/assets/b15cd6de-983d-4da5-9664-f2bac1636aed" />
 _Beautiful map interface with real-time issue markers_
 
 ### 📝 Issue Reporting Form
-
+<img width="1187" height="792" alt="image" src="https://github.com/user-attachments/assets/4ac5dd5b-a727-45f5-844c-8d3f34821799" />
 _Modern modal with image upload and location picker_
 
 ### 👤 User Dashboard
-
+<img width="1897" height="824" alt="image" src="https://github.com/user-attachments/assets/b58f9550-24c6-48e0-934d-70cf9bbd8c5c" />
 _Personal profile with issue tracking and statistics_
 
 ### 👑 Admin Dashboard
-
+<img width="1894" height="824" alt="image" src="https://github.com/user-attachments/assets/1ec87480-0421-4ffb-9645-5a0e6db72721" />
 _Comprehensive admin panel with status management_
 
 ### 🌓 Theme Toggle
-
 _Seamless switch between light and dark modes_
 
 </div>
