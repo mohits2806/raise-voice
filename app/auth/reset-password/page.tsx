@@ -20,6 +20,7 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -248,7 +249,7 @@ function ResetPasswordForm() {
                 className="w-full px-4 py-3.5 pr-12 rounded-xl font-medium transition-all duration-300 outline-none focus:ring-2 focus:ring-offset-2"
                 style={{
                   backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
+                  border: "2px solid rgb(var(--border-secondary))",
                   color: "rgb(var(--text-primary))",
                 }}
               />
@@ -304,20 +305,30 @@ function ResetPasswordForm() {
               <Lock size={18} style={{ color: "rgb(var(--accent-primary))" }} />
               Confirm Password
             </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              minLength={6}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter your new password"
-              className="w-full px-4 py-3.5 rounded-xl font-medium transition-all duration-300 outline-none focus:ring-2 focus:ring-offset-2"
-              style={{
-                backgroundColor: "rgb(var(--bg-tertiary))",
-                border: "2px solid rgb(var(--border-primary))",
-                color: "rgb(var(--text-primary))",
-              }}
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your new password"
+                className="w-full px-4 py-3.5 pr-12 rounded-xl font-medium transition-all duration-300 outline-none focus:ring-2 focus:ring-offset-2"
+                style={{
+                  backgroundColor: "rgb(var(--bg-tertiary))",
+                  border: "2px solid rgb(var(--border-secondary))",
+                  color: "rgb(var(--text-primary))",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors duration-300"
+                style={{ color: "rgb(var(--text-tertiary))" }}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {confirmPassword && password !== confirmPassword && (
               <p
                 className="mt-2 text-xs"
