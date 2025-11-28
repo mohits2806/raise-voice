@@ -24,9 +24,6 @@ const UserSchema = new Schema<IUser>(
             default: 'user',
             required: true,
         },
-        image: {
-            type: String,
-        },
         emailVerified: {
             type: Date,
         },

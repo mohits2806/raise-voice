@@ -82,17 +82,6 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Profile Picture */}
             <div className="relative">
-              {session.user.image ? (
-                <img
-                  src={session.user.image}
-                  alt={session.user.name || 'User'}
-                  className="w-24 h-24 rounded-full"
-                  style={{
-                    border: '4px solid rgb(var(--border-primary))',
-                    boxShadow: 'var(--shadow-lg)',
-                  }}
-                />
-              ) : (
                 <div 
                   className="w-24 h-24 rounded-full flex items-center justify-center"
                   style={{
@@ -102,7 +91,6 @@ export default function ProfilePage() {
                 >
                  <UserIcon size={48} style={{ color: 'rgb(var(--text-tertiary))' }} />
                 </div>
-              )}
             </div>
 
             {/* User Info */}

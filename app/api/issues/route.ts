@@ -36,7 +36,6 @@ export async function GET(request: Request) {
             userId: {
                 _id: issue.userId._id,
                 name: 'Anonymous User',
-                image: undefined,
             }
         }));
 
@@ -79,7 +78,7 @@ export async function POST(request: Request) {
             isAnonymous: validatedData.isAnonymous !== undefined ? validatedData.isAnonymous : true,
         });
 
-        const populatedIssue = await Issue.findById(issue._id).populate('userId', 'name email image');
+        const populatedIssue = await Issue.findById(issue._id).populate('userId', 'name email');
 
         // Always anonymize - never expose personal info
         const responseIssue = populatedIssue?.toObject();
@@ -87,7 +86,6 @@ export async function POST(request: Request) {
             responseIssue.userId = {
                 _id: responseIssue.userId._id,
                 name: 'Anonymous User',
-                image: undefined,
             } as any;
         }
 

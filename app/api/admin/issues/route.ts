@@ -50,7 +50,6 @@ export async function GET(req: NextRequest) {
             userId: {
                 _id: issue.userId._id,
                 name: 'Anonymous User',
-                image: undefined,
             }
         }));
 

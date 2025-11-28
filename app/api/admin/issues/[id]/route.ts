@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/admin-middleware';
 import dbConnect from '@/lib/mongodb';
 import Issue from '@/models/Issue';
 import { NextRequest, NextResponse } from 'next/server';
+import { deleteFromCloudinary } from '@/lib/cloudinary';
 
 export async function PATCH(
     req: NextRequest,
@@ -90,16 +91,16 @@ export async function DELETE(
             try {
                 for (const imageUrl of issue.images) {
                     // Extract public_id from Cloudinary URL
-                    const urlParts = imageUrl.split('/');
-                    const filename = urlParts[urlParts.length - 1];
-                    const public_id = filename.split('.')[0];
-                    
-                    // Make request to delete endpoint
-                    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/delete-image`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ public_id }),
-                    });
+                    // URL format: https://res.cloudinary.com/cloud/image/upload/v123456/folder/filename.ext
+                    // public_id format: folder/filename (without extension)
+                    const matches = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\./);
+                    if (matches && matches[1]) {
+                        const public_id = matches[1];
+                        console.log('Deleting image with public_id:', public_id);
+                        
+                        // Delete directly from Cloudinary
+                        await deleteFromCloudinary(public_id);
+                    }
                 }
             } catch (imgError) {
                 console.error('Error deleting images from Cloudinary:', imgError);

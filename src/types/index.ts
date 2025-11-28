@@ -6,7 +6,6 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   role: 'user' | 'admin';
-  image?: string;
   emailVerified?: Date;
   provider?: string;
   createdAt: Date;
@@ -57,6 +56,5 @@ export interface IssueWithUser extends IIssue {
   user: {
     name: string;
     email: string;
-    image?: string;
   };
 }

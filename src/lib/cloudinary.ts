@@ -36,7 +36,13 @@ export async function uploadToCloudinary(file: string, folder: string = 'raisevo
 
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
     try {
-        await cloudinary.uploader.destroy(publicId);
+        console.log('Attempting to delete from Cloudinary:', publicId);
+        const result = await cloudinary.uploader.destroy(publicId);
+        console.log('Cloudinary delete result:', result);
+        
+        if (result.result !== 'ok' && result.result !== 'not found') {
+            throw new Error(`Cloudinary delete failed: ${result.result}`);
+        }
     } catch (error) {
         console.error('Cloudinary delete error:', error);
         throw new Error('Failed to delete image');
