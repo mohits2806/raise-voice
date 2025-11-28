@@ -100,7 +100,7 @@ export default function IssueDetailsPage() {
           title: "Deleted!",
           text: "Your issue has been deleted successfully.",
           icon: "success",
-          confirmButtonColor: "#9333ea",
+          showConfirmButton: false,
           timer: 2000,
           background: "rgb(var(--bg-secondary))",
           color: "rgb(var(--text-primary))",
@@ -115,7 +115,8 @@ export default function IssueDetailsPage() {
         title: "Error!",
         text: "Failed to delete the issue. Please try again.",
         icon: "error",
-        confirmButtonColor: "#dc2626",
+        showConfirmButton: false,
+        timer: 2000,
         background: "rgb(var(--bg-secondary))",
         color: "rgb(var(--text-primary))",
       });
