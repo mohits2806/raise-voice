@@ -104,7 +104,7 @@ export default function IssueForm({
 
           <div className="pr-12">
             <h2 className="text-3xl sm:text-4xl font-bold font-display mb-2 text-white">
-              Report an Issue
+              Raise a Issue
             </h2>
             <p className="text-white/90 text-sm sm:text-base">
               Help improve your community anonymously
@@ -155,7 +155,7 @@ export default function IssueForm({
                 className="w-full px-4 py-3.5 rounded-xl font-medium transition-all duration-300 outline-none focus:ring-2 focus:ring-offset-2"
                 style={{
                   backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
+                  border: "2px solid rgb(var(--border-secondary))",
                   color: "rgb(var(--text-primary))",
                 }}
                 onFocus={(e) => {
@@ -167,7 +167,7 @@ export default function IssueForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))";
+                    "rgb(var(--border-secondary))";
                   e.currentTarget.style.transform = "translateY(0)";
                   e.currentTarget.style.boxShadow = "none";
                 }}
@@ -201,7 +201,7 @@ export default function IssueForm({
                 className="w-full px-4 py-3.5 rounded-xl font-medium transition-all duration-300 outline-none cursor-pointer hover:shadow-md"
                 style={{
                   backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
+                  border: "2px solid rgb(var(--border-secondary))",
                   color: "rgb(var(--text-primary))",
                 }}
               >
@@ -239,7 +239,7 @@ export default function IssueForm({
                 className="w-full px-4 py-3.5 rounded-xl font-medium transition-all duration-300 outline-none resize-none focus:ring-2 focus:ring-offset-2"
                 style={{
                   backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
+                  border: "2px solid rgb(var(--border-secondary))",
                   color: "rgb(var(--text-primary))",
                 }}
                 onFocus={(e) => {
@@ -251,7 +251,7 @@ export default function IssueForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))";
+                    "rgb(var(--border-secondary))";
                   e.currentTarget.style.transform = "translateY(0)";
                   e.currentTarget.style.boxShadow = "none";
                 }}

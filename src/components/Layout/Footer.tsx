@@ -111,7 +111,7 @@ export default function Footer() {
               className="text-lg font-bold font-display"
               style={{ color: "rgb(var(--text-primary))" }}
             >
-              Developer
+              Designed & Developed by
             </h3>
             <div className="space-y-2">
               <p

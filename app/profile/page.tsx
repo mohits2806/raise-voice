@@ -245,7 +245,7 @@ export default function ProfilePage() {
                 onClick={() => router.push('/')}
                 className="btn-primary"
               >
-                Report an Issue
+                Raise a Issue
               </button>
             </div>
           ) : (
