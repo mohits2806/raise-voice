@@ -10,8 +10,8 @@ This software and associated documentation files (the "Software") are made
 available under the following terms and conditions:
 
 ================================================================================
-
 1. # DEFINITIONS
+================================================================================
 
 "Software" refers to the RaiseVoice application, including all source code,
 documentation, assets, and related materials.
@@ -24,7 +24,8 @@ this License.
 "Contribution" refers to any modification, addition, or improvement to the
 Software submitted to the Author.
 
-================================================================================ 2. GRANT OF RIGHTS
+================================================================================
+2. GRANT OF RIGHTS
 ================================================================================
 
 Subject to the terms and conditions of this License, You are granted the
@@ -45,7 +46,8 @@ following rights:
 ✓ Access to the source code
 ✓ Documentation and guides
 
-================================================================================ 3. RESTRICTIONS
+================================================================================
+3. RESTRICTIONS
 ================================================================================
 
 The following actions are STRICTLY PROHIBITED:
@@ -67,7 +69,8 @@ The following actions are STRICTLY PROHIBITED:
 ✗ Claiming authorship of the original work
 ✗ Suggesting the Author endorses your use without permission
 
-================================================================================ 4. ATTRIBUTION REQUIREMENTS
+================================================================================
+4. ATTRIBUTION REQUIREMENTS
 ================================================================================
 
 If You use, modify, or deploy the Software, You MUST:
@@ -84,7 +87,8 @@ Retain all copyright, license, and attribution notices in the source code
 4.3 LINK BACK
 If deployed publicly, include a visible link to the original repository
 
-================================================================================ 5. CONTRIBUTIONS
+================================================================================
+5. CONTRIBUTIONS
 ================================================================================
 
 5.1 CONTRIBUTION TERMS - All contributions must be submitted via the official repository - By contributing, You grant the Author perpetual rights to use, modify,
@@ -94,7 +98,8 @@ and incorporate your contributions - Contributors will be acknowledged in projec
 Significant contributors will be credited in the project's README and
 documentation
 
-================================================================================ 6. PERMITTED EDUCATIONAL USE
+================================================================================
+6. PERMITTED EDUCATIONAL USE
 ================================================================================
 
 Educational institutions and non-profit organizations MAY:
@@ -103,7 +108,8 @@ Educational institutions and non-profit organizations MAY:
 ✓ Reference the Software in academic publications
 (Attribution required in all cases)
 
-================================================================================ 7. EXCEPTIONS AND SPECIAL PERMISSIONS
+================================================================================
+7. EXCEPTIONS AND SPECIAL PERMISSIONS
 ================================================================================
 
 7.1 REQUESTING PERMISSION
@@ -116,7 +122,8 @@ permitted with explicit written permission from the Author.
 Organizations seeking commercial use should contact the Author to discuss
 licensing terms.
 
-================================================================================ 8. WARRANTY DISCLAIMER
+================================================================================
+8. WARRANTY DISCLAIMER
 ================================================================================
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -128,7 +135,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
 OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-================================================================================ 9. TERMINATION
+================================================================================
+9. TERMINATION
 ================================================================================
 
 9.1 AUTOMATIC TERMINATION
@@ -139,13 +147,15 @@ its terms and conditions.
 Upon termination, You must cease all use of the Software and destroy all
 copies in your possession.
 
-================================================================================ 10. GOVERNING LAW
+================================================================================
+10. GOVERNING LAW
 ================================================================================
 
 This License shall be governed by and construed in accordance with the laws
 of India, without regard to its conflict of law provisions.
 
-================================================================================ 11. CONTACT INFORMATION
+================================================================================
+11. CONTACT INFORMATION
 ================================================================================
 
 For permissions, questions, or commercial licensing inquiries:
@@ -156,7 +166,8 @@ GitHub: https://github.com/mohits2806
 LinkedIn: https://linkedin.com/in/mohit-shaharwale
 Portfolio: https://mohitshaharwale.netlify.app
 
-================================================================================ 12. ACKNOWLEDGMENT
+================================================================================
+12. ACKNOWLEDGMENT
 ================================================================================
 
 By using the Software, You acknowledge that You have read this License,
