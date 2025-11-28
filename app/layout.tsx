@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "Report and track community issues like water supply, potholes, garbage, and more on an interactive map.",
   keywords:
     "community issues, report problems, civic engagement, water supply, infrastructure",
-  authors: [{ name: "RaiseVoice Team" }],
+  authors: [{ name: "Mohit Shaharwale" }],
   openGraph: {
     title: "RaiseVoice - Report Community Issues",
     description: "Report and track community issues on an interactive map",
