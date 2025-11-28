@@ -1,10 +1,26 @@
 "use client";
 
-import { Github, Linkedin, Globe, Twitter, Instagram } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Globe,
+  Twitter,
+  Instagram,
+  Star,
+} from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [stars, setStars] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/github/stars")
+      .then((res) => res.json())
+      .then((data) => setStars(data.stars))
+      .catch(() => setStars(null));
+  }, []);
 
   const socialLinks = [
     {
@@ -76,8 +92,16 @@ export default function Footer() {
                 color: "white",
               }}
             >
-              <Github size={18} />
-              View on GitHub
+              <Star size={18} className="fill-current" />
+              <span>Star on GitHub</span>
+              {stars !== null && (
+                <span
+                  className="px-2 py-0.5 rounded-full text-xs font-bold"
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                >
+                  {stars.toLocaleString()}
+                </span>
+              )}
             </Link>
           </div>
 
@@ -100,7 +124,8 @@ export default function Footer() {
                 className="text-sm"
                 style={{ color: "rgb(var(--text-secondary))" }}
               >
-                Full Stack Developer passionate about building impactful tech solutions.
+                Full Stack Developer passionate about building impactful tech
+                solutions.
               </p>
             </div>
           </div>
