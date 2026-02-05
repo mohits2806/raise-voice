@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -17,6 +17,118 @@ import {
   ISSUE_CATEGORIES,
 } from "@/lib/constants";
 import LocationButton from "./LocationButton";
+
+// Search Bar Component
+function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayName: string) => void }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        onSearch(parseFloat(lat), parseFloat(lon), display_name);
+      } else {
+        setError("Location not found. Try a different search.");
+      }
+    } catch (err) {
+      setError("Search failed. Please try again.");
+      console.error("Search error:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [searchQuery, onSearch]);
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  return (
+    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[90%] max-w-md">
+      <div className="flex items-center bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        {/* Search Icon */}
+        <div className="pl-4 pr-2 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        {/* Input Field */}
+        <input
+          type="text"
+          placeholder="Search for a location..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={handleKeyPress}
+          className="flex-1 py-3 px-2 text-gray-700 placeholder-gray-400 focus:outline-none text-sm"
+          disabled={isSearching}
+        />
+
+        {/* Search Button */}
+        <button
+          onClick={handleSearch}
+          disabled={isSearching || !searchQuery.trim()}
+          className="px-5 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isSearching ? (
+            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            "Search"
+          )}
+        </button>
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mt-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component to handle search location navigation
+function SearchLocationController({ searchLocation }: { searchLocation: { lat: number; lng: number } | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (searchLocation && map) {
+      map.flyTo([searchLocation.lat, searchLocation.lng], 12, {
+        duration: 1.5,
+        easeLinearity: 0.5,
+      });
+    }
+  }, [searchLocation, map]);
+
+  return null;
+}
 
 interface InteractiveMapProps {
   issues: IIssue[];
@@ -45,8 +157,8 @@ const createCustomIcon = (category: string, status: string) => {
     status === "resolved"
       ? "#10b981"
       : status === "in-progress"
-      ? "#f59e0b"
-      : "#ef4444";
+        ? "#f59e0b"
+        : "#ef4444";
 
   return L.divIcon({
     className: "custom-marker",
@@ -165,10 +277,18 @@ export default function InteractiveMap({
   const [shouldCenterOnUser, setShouldCenterOnUser] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
+  const [searchLocation, setSearchLocation] = useState<{ lat: number; lng: number } | null>(null);
   const containerIdRef = useRef(
     `map-${Math.random().toString(36).substr(2, 9)}`
   );
   const mapCenter = initialCenter || userLocation || DEFAULT_MAP_CENTER;
+
+  // Handle search location
+  const handleSearch = useCallback((lat: number, lng: number, displayName: string) => {
+    setSearchLocation({ lat, lng });
+    // Reset after a short delay to allow for subsequent searches
+    setTimeout(() => setSearchLocation(null), 2000);
+  }, []);
 
   // Auto-center on user location when available
   useEffect(() => {
@@ -240,6 +360,7 @@ export default function InteractiveMap({
           userLocation={userLocation}
           shouldCenter={shouldCenterOnUser}
         />
+        <SearchLocationController searchLocation={searchLocation} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -287,13 +408,12 @@ export default function InteractiveMap({
                       }
                     </span>
                     <span
-                      className={`text-xs px-2 py-1 rounded text-white ${
-                        issue.status === "resolved"
-                          ? "bg-green-500"
-                          : issue.status === "in-progress"
+                      className={`text-xs px-2 py-1 rounded text-white ${issue.status === "resolved"
+                        ? "bg-green-500"
+                        : issue.status === "in-progress"
                           ? "bg-yellow-500"
                           : "bg-red-500"
-                      }`}
+                        }`}
                     >
                       {issue.status}
                     </span>
@@ -332,6 +452,9 @@ export default function InteractiveMap({
           </Marker>
         )}
       </MapContainer>
+
+      {/* Search Bar */}
+      <SearchBar onSearch={handleSearch} />
 
       {/* Floating Location Button */}
       <div className="absolute bottom-6 right-6 z-[10]">
