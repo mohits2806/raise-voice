@@ -18,17 +18,92 @@ import {
 } from "@/lib/constants";
 import LocationButton from "./LocationButton";
 
-// Search Bar Component
+// Search suggestion interface
+interface SearchSuggestion {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
+// Search Bar Component with Autocomplete
 function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayName: string) => void }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // Fetch suggestions with debounce
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
+        {
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch suggestions');
+      }
+
+      const data = await response.json();
+      setSuggestions(data || []);
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Suggestion error:", err);
+      setSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  }, []);
+
+  // Handle input change with debounce
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setError(null);
+
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new debounce timer (300ms)
+    debounceTimerRef.current = setTimeout(() => {
+      fetchSuggestions(value);
+    }, 300);
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    setSearchQuery(suggestion.display_name);
+    setSuggestions([]);
+    setShowSuggestions(false);
+    onSearch(parseFloat(suggestion.lat), parseFloat(suggestion.lon), suggestion.display_name);
+  };
+
+  // Handle search button click
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
     setError(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
 
     try {
       const response = await fetch(
@@ -66,8 +141,29 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
     }
   };
 
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Cleanup debounce timer
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[90%] max-w-md">
+    <div ref={searchContainerRef} className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[95%] max-w-3xl">
       <div className="flex items-center bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         {/* Search Icon */}
         <div className="pl-4 pr-2 text-gray-400">
@@ -81,11 +177,22 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
           type="text"
           placeholder="Search for a location..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleInputChange}
           onKeyPress={handleKeyPress}
+          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           className="flex-1 py-3 px-2 text-gray-700 placeholder-gray-400 focus:outline-none text-sm"
           disabled={isSearching}
         />
+
+        {/* Loading indicator for suggestions */}
+        {isLoadingSuggestions && (
+          <div className="pr-2">
+            <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        )}
 
         {/* Search Button */}
         <button
@@ -103,6 +210,27 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
           )}
         </button>
       </div>
+
+      {/* Suggestions Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="mt-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden max-h-64 overflow-y-auto">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion.place_id}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0 flex items-start gap-3"
+            >
+              <span className="text-blue-500 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </span>
+              <span className="text-sm text-gray-700 line-clamp-2">{suggestion.display_name}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (
