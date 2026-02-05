@@ -221,6 +221,34 @@ const createUserLocationIcon = () => {
   });
 };
 
+// Create search location marker icon
+const createSearchMarkerIcon = () => {
+  return L.divIcon({
+    className: "custom-marker",
+    html: `
+      <div style="position: relative;">
+        <div style="
+          background-color: #8b5cf6;
+          width: 36px;
+          height: 36px;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          border: 3px solid white;
+          box-shadow: 0 3px 10px rgba(139, 92, 246, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <span style="transform: rotate(45deg); font-size: 16px;">🔍</span>
+        </div>
+      </div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+  });
+};
+
 function MapClickHandler({
   onClick,
 }: {
@@ -278,6 +306,7 @@ export default function InteractiveMap({
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
   const [searchLocation, setSearchLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<{ lat: number; lng: number; displayName: string } | null>(null);
   const containerIdRef = useRef(
     `map-${Math.random().toString(36).substr(2, 9)}`
   );
@@ -286,7 +315,8 @@ export default function InteractiveMap({
   // Handle search location
   const handleSearch = useCallback((lat: number, lng: number, displayName: string) => {
     setSearchLocation({ lat, lng });
-    // Reset after a short delay to allow for subsequent searches
+    setSearchMarkerLocation({ lat, lng, displayName });
+    // Reset animation trigger after a short delay to allow for subsequent searches
     setTimeout(() => setSearchLocation(null), 2000);
   }, []);
 
@@ -436,6 +466,24 @@ export default function InteractiveMap({
             </Marker>
           );
         })}
+
+        {/* Search location marker */}
+        {searchMarkerLocation && (
+          <Marker
+            position={[searchMarkerLocation.lat, searchMarkerLocation.lng]}
+            icon={createSearchMarkerIcon()}
+          >
+            <Popup>
+              <div className="p-2 max-w-xs">
+                <p className="font-semibold text-purple-600">🔍 Searched Location</p>
+                <p className="text-sm text-gray-700 mt-1">{searchMarkerLocation.displayName}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {searchMarkerLocation.lat.toFixed(6)}, {searchMarkerLocation.lng.toFixed(6)}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
 
         {/* Selected location marker */}
         {selectedLocation && (
