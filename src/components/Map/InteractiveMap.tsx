@@ -163,7 +163,7 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
   }, []);
 
   return (
-    <div ref={searchContainerRef} className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[95%] max-w-3xl">
+    <div ref={searchContainerRef} className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[10] w-[95%] max-w-3xl">
       <div className="flex items-center bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         {/* Search Icon */}
         <div className="pl-4 pr-2 text-gray-400">
