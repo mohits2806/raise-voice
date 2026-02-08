@@ -8,6 +8,7 @@ import {
   Popup,
   useMapEvents,
   useMap,
+  GeoJSON,
 } from "react-leaflet";
 import L from "leaflet";
 import { IIssue } from "@/types";
@@ -24,10 +25,23 @@ interface SearchSuggestion {
   display_name: string;
   lat: string;
   lon: string;
+  osm_id?: number;
+  osm_type?: string;
+  boundingbox?: string[];
 }
 
 // Search Bar Component with Autocomplete
-function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayName: string) => void }) {
+function SearchBar({
+  onSearch,
+}: {
+  onSearch: (
+    lat: number,
+    lng: number,
+    displayName: string,
+    osmId?: number,
+    osmType?: string,
+  ) => void;
+}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,13 +65,13 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
         {
           headers: {
-            'Accept': 'application/json',
+            Accept: "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch suggestions');
+        throw new Error("Failed to fetch suggestions");
       }
 
       const data = await response.json();
@@ -93,7 +107,13 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
     setSearchQuery(suggestion.display_name);
     setSuggestions([]);
     setShowSuggestions(false);
-    onSearch(parseFloat(suggestion.lat), parseFloat(suggestion.lon), suggestion.display_name);
+    onSearch(
+      parseFloat(suggestion.lat),
+      parseFloat(suggestion.lon),
+      suggestion.display_name,
+      suggestion.osm_id,
+      suggestion.osm_type,
+    );
   };
 
   // Handle search button click
@@ -110,20 +130,26 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`,
         {
           headers: {
-            'Accept': 'application/json',
+            Accept: "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
-        throw new Error('Search failed');
+        throw new Error("Search failed");
       }
 
       const data = await response.json();
 
       if (data && data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        onSearch(parseFloat(lat), parseFloat(lon), display_name);
+        const { lat, lon, display_name, osm_id, osm_type } = data[0];
+        onSearch(
+          parseFloat(lat),
+          parseFloat(lon),
+          display_name,
+          osm_id,
+          osm_type,
+        );
       } else {
         setError("Location not found. Try a different search.");
       }
@@ -136,7 +162,7 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
   }, [searchQuery, onSearch]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -144,13 +170,16 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Cleanup debounce timer
@@ -163,33 +192,79 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
   }, []);
 
   return (
-    <div ref={searchContainerRef} className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[10] w-[95%] max-w-3xl">
-      <div className="flex items-center bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+    <div
+      ref={searchContainerRef}
+      className="absolute top-4 right-4 z-[10] w-72"
+    >
+      <div
+        className="flex items-center rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg"
+        style={{
+          backgroundColor: "rgb(var(--bg-primary))",
+          border: "2px solid rgb(var(--border-secondary))",
+          boxShadow: "var(--shadow-lg)",
+        }}
+      >
         {/* Search Icon */}
-        <div className="pl-4 pr-2 text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div
+          className="pl-3 pr-1.5"
+          style={{ color: "rgb(var(--text-tertiary))" }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
 
         {/* Input Field */}
         <input
           type="text"
-          placeholder="Search for a location..."
+          placeholder="Search location..."
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          className="flex-1 py-3 px-2 text-gray-700 placeholder-gray-400 focus:outline-none text-sm"
+          className="flex-1 py-2.5 px-1.5 focus:outline-none text-sm bg-transparent"
+          style={{
+            color: "rgb(var(--text-primary))",
+          }}
           disabled={isSearching}
         />
 
         {/* Loading indicator for suggestions */}
         {isLoadingSuggestions && (
-          <div className="pr-2">
-            <svg className="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <div
+            className="pr-1.5"
+            style={{ color: "rgb(var(--text-tertiary))" }}
+          >
+            <svg
+              className="animate-spin h-3.5 w-3.5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           </div>
         )}
@@ -198,35 +273,96 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
         <button
           onClick={handleSearch}
           disabled={isSearching || !searchQuery.trim()}
-          className="px-5 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-3 py-2.5 font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          style={{
+            background: "var(--gradient-primary)",
+            color: "white",
+          }}
         >
           {isSearching ? (
-            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           ) : (
-            "Search"
+            "Go"
           )}
         </button>
       </div>
 
       {/* Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="mt-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden max-h-64 overflow-y-auto">
+        <div
+          className="mt-1.5 rounded-xl overflow-hidden max-h-52 overflow-y-auto"
+          style={{
+            backgroundColor: "rgb(var(--bg-primary))",
+            border: "2px solid rgb(var(--border-secondary))",
+            boxShadow: "var(--shadow-lg)",
+          }}
+        >
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.place_id}
               onClick={() => handleSuggestionClick(suggestion)}
-              className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0 flex items-start gap-3"
+              className="w-full px-3 py-2.5 text-left transition-colors duration-150 flex items-start gap-2"
+              style={{
+                borderBottom: "1px solid rgb(var(--border-primary))",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "rgb(var(--bg-secondary))")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
             >
-              <span className="text-blue-500 mt-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              <span
+                style={{ color: "rgb(var(--accent-primary))" }}
+                className="mt-0.5 flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
               </span>
-              <span className="text-sm text-gray-700 line-clamp-2">{suggestion.display_name}</span>
+              <span
+                className="text-xs line-clamp-2"
+                style={{ color: "rgb(var(--text-primary))" }}
+              >
+                {suggestion.display_name}
+              </span>
             </button>
           ))}
         </div>
@@ -234,7 +370,14 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
 
       {/* Error Message */}
       {error && (
-        <div className="mt-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+        <div
+          className="mt-1.5 px-3 py-2 rounded-lg text-xs"
+          style={{
+            backgroundColor: "rgba(var(--accent-error), 0.1)",
+            border: "1px solid rgb(var(--accent-error))",
+            color: "rgb(var(--accent-error))",
+          }}
+        >
           {error}
         </div>
       )}
@@ -243,7 +386,11 @@ function SearchBar({ onSearch }: { onSearch: (lat: number, lng: number, displayN
 }
 
 // Component to handle search location navigation
-function SearchLocationController({ searchLocation }: { searchLocation: { lat: number; lng: number } | null }) {
+function SearchLocationController({
+  searchLocation,
+}: {
+  searchLocation: { lat: number; lng: number } | null;
+}) {
   const map = useMap();
 
   useEffect(() => {
@@ -433,20 +580,61 @@ export default function InteractiveMap({
   const [shouldCenterOnUser, setShouldCenterOnUser] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [hasCenteredOnce, setHasCenteredOnce] = useState(false);
-  const [searchLocation, setSearchLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [searchMarkerLocation, setSearchMarkerLocation] = useState<{ lat: number; lng: number; displayName: string } | null>(null);
+  const [searchLocation, setSearchLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [searchMarkerLocation, setSearchMarkerLocation] = useState<{
+    lat: number;
+    lng: number;
+    displayName: string;
+    boundary?: GeoJSON.GeoJsonObject;
+  } | null>(null);
   const containerIdRef = useRef(
-    `map-${Math.random().toString(36).substr(2, 9)}`
+    `map-${Math.random().toString(36).substr(2, 9)}`,
   );
   const mapCenter = initialCenter || userLocation || DEFAULT_MAP_CENTER;
 
   // Handle search location
-  const handleSearch = useCallback((lat: number, lng: number, displayName: string) => {
-    setSearchLocation({ lat, lng });
-    setSearchMarkerLocation({ lat, lng, displayName });
-    // Reset animation trigger after a short delay to allow for subsequent searches
-    setTimeout(() => setSearchLocation(null), 2000);
-  }, []);
+  const handleSearch = useCallback(
+    async (
+      lat: number,
+      lng: number,
+      displayName: string,
+      osmId?: number,
+      osmType?: string,
+    ) => {
+      setSearchLocation({ lat, lng });
+
+      // Try to fetch boundary polygon if we have osm_id and osm_type
+      let boundary: GeoJSON.GeoJsonObject | undefined;
+      if (osmId && osmType) {
+        try {
+          const boundaryResponse = await fetch(
+            `https://nominatim.openstreetmap.org/details.php?osmtype=${osmType.charAt(0).toUpperCase()}&osmid=${osmId}&polygon_geojson=1&format=json`,
+            {
+              headers: {
+                Accept: "application/json",
+              },
+            },
+          );
+          if (boundaryResponse.ok) {
+            const boundaryData = await boundaryResponse.json();
+            if (boundaryData.geometry && boundaryData.geometry.type) {
+              boundary = boundaryData.geometry;
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch boundary:", err);
+        }
+      }
+
+      setSearchMarkerLocation({ lat, lng, displayName, boundary });
+      // Reset animation trigger after a short delay to allow for subsequent searches
+      setTimeout(() => setSearchLocation(null), 2000);
+    },
+    [],
+  );
 
   // Auto-center on user location when available
   useEffect(() => {
@@ -475,9 +663,9 @@ export default function InteractiveMap({
             console.error("Geolocation error:", error);
             setIsGettingLocation(false);
             alert(
-              "Unable to get your location. Please enable location services."
+              "Unable to get your location. Please enable location services.",
             );
-          }
+          },
         );
       } else {
         setIsGettingLocation(false);
@@ -566,12 +754,13 @@ export default function InteractiveMap({
                       }
                     </span>
                     <span
-                      className={`text-xs px-2 py-1 rounded text-white ${issue.status === "resolved"
-                        ? "bg-green-500"
-                        : issue.status === "in-progress"
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
-                        }`}
+                      className={`text-xs px-2 py-1 rounded text-white ${
+                        issue.status === "resolved"
+                          ? "bg-green-500"
+                          : issue.status === "in-progress"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                      }`}
                     >
                       {issue.status}
                     </span>
@@ -595,18 +784,60 @@ export default function InteractiveMap({
           );
         })}
 
-        {/* Search location marker */}
-        {searchMarkerLocation && (
-          <Marker
-            position={[searchMarkerLocation.lat, searchMarkerLocation.lng]}
-            icon={createSearchMarkerIcon()}
+        {/* Search location boundary or fallback marker */}
+        {searchMarkerLocation && searchMarkerLocation.boundary && (
+          <GeoJSON
+            key={`boundary-${searchMarkerLocation.lat}-${searchMarkerLocation.lng}`}
+            data={searchMarkerLocation.boundary}
+            style={{
+              color: "rgb(139, 92, 246)",
+              weight: 3,
+              fillColor: "rgb(139, 92, 246)",
+              fillOpacity: 0.1,
+            }}
           >
             <Popup>
               <div className="p-2 max-w-xs">
-                <p className="font-semibold text-purple-600">🔍 Searched Location</p>
-                <p className="text-sm text-gray-700 mt-1">{searchMarkerLocation.displayName}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {searchMarkerLocation.lat.toFixed(6)}, {searchMarkerLocation.lng.toFixed(6)}
+                <p className="font-semibold text-purple-600">
+                  🔍 {searchMarkerLocation.displayName.split(",")[0]}
+                </p>
+                <p className="text-sm text-gray-700 mt-1">
+                  {searchMarkerLocation.displayName}
+                </p>
+              </div>
+            </Popup>
+          </GeoJSON>
+        )}
+
+        {/* Fallback marker when no boundary available */}
+        {searchMarkerLocation && !searchMarkerLocation.boundary && (
+          <Marker
+            position={[searchMarkerLocation.lat, searchMarkerLocation.lng]}
+            icon={L.divIcon({
+              className: "custom-marker",
+              html: `
+                <div style="position: relative;">
+                  <div style="
+                    background-color: #8b5cf6;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.5);
+                  "></div>
+                </div>
+              `,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            })}
+          >
+            <Popup>
+              <div className="p-2 max-w-xs">
+                <p className="font-semibold text-purple-600">
+                  🔍 Searched Location
+                </p>
+                <p className="text-sm text-gray-700 mt-1">
+                  {searchMarkerLocation.displayName}
                 </p>
               </div>
             </Popup>

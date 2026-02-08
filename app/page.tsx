@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Plus, Filter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import IssueForm from "@/components/Issues/IssueForm";
 import { ISSUE_CATEGORIES, ISSUE_STATUSES } from "@/lib/constants";
@@ -26,7 +26,6 @@ export default function HomePage() {
   const router = useRouter();
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
@@ -78,7 +77,6 @@ export default function HomePage() {
     } catch (error) {
       console.error("Failed to fetch issues:", error);
     } finally {
-      setLoading(false);
     }
   };
 

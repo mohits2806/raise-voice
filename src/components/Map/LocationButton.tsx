@@ -1,6 +1,6 @@
 'use client';
 
-import { Navigation, Loader2 } from 'lucide-react';
+import { LocateFixed, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface LocationButtonProps {
@@ -31,7 +31,7 @@ export default function LocationButton({ onLocationClick, isGettingLocation = fa
           className="animate-spin text-primary-600 dark:text-primary-400" 
         />
       ) : (
-        <Navigation 
+        <LocateFixed 
           size={24}
           className={`transition-colors duration-300 ${
             isHovered 

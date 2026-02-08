@@ -332,12 +332,6 @@ body {
   background: rgb(var(--accent-primary));
 }
 
-/* Selection */
-::selection {
-  background: rgba(var(--accent-primary), 0.3);
-  color: rgb(var(--text-primary));
-}
-
 /* Focus styles */
 :focus-visible {
   outline: 2px solid rgb(var(--accent-primary));

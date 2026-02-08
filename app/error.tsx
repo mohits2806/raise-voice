@@ -48,7 +48,7 @@ export default function Error({
           className="text-sm sm:text-base mb-6 leading-relaxed"
           style={{ color: 'rgb(var(--text-secondary))' }}
         >
-          We encountered an unexpected error. Don't worry, these things happen! 
+          We encountered an unexpected error. Don&apos;t worry, these things happen! 
           Try refreshing the page or go back to the home page.
         </p>
 
