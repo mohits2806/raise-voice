@@ -14,7 +14,7 @@ export const ISSUE_STATUSES = [
     { value: 'resolved', label: 'Resolved', color: 'bg-green-500' },
 ] as const;
 
-export const DEFAULT_MAP_CENTER: [number, number] = [28.6139, 77.2090]; // Delhi, India
+export const DEFAULT_MAP_CENTER: [number, number] = [17.673377, 75.907924]; // Solapur, Maharashtra, India
 export const DEFAULT_MAP_ZOOM = 12;
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
