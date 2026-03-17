@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import PushNotificationManager from "@/components/Notifications/PushNotificationManager";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -52,7 +53,7 @@ export default async function RootLayout({
         />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0f172a" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="RaiseVoice" />
       </head>
@@ -66,6 +67,7 @@ export default async function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
               <PushNotificationManager />
+              <PWAInstallPrompt />
             </div>
           </ThemeProvider>
         </SessionProvider>
