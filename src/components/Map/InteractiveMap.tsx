@@ -16,6 +16,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_ZOOM,
   ISSUE_CATEGORIES,
+  SOLAPUR_MAX_BOUNDS,
 } from "@/lib/constants";
 import LocationButton from "./LocationButton";
 
@@ -61,8 +62,10 @@ function SearchBar({
     setIsLoadingSuggestions(true);
 
     try {
+      // Prioritize and bound results to Solapur
+      const viewboxStr = "75.8,17.75,76.05,17.58";
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Solapur")}&limit=5&viewbox=${viewboxStr}&bounded=1`,
         {
           headers: {
             Accept: "application/json",
@@ -126,8 +129,10 @@ function SearchBar({
     setShowSuggestions(false);
 
     try {
+      // Prioritize and bound results to Solapur
+      const viewboxStr = "75.8,17.75,76.05,17.58";
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery + " Solapur")}&limit=1&viewbox=${viewboxStr}&bounded=1`,
         {
           headers: {
             Accept: "application/json",
@@ -696,8 +701,11 @@ export default function InteractiveMap({
       style={{ height, boxShadow: "var(--shadow-xl)" }}
     >
       <MapContainer
-        center={mapCenter}
-        zoom={userLocation || initialCenter ? 13 : DEFAULT_MAP_ZOOM}
+        center={mapCenter as [number, number]}
+        zoom={userLocation || initialCenter ? 14 : DEFAULT_MAP_ZOOM}
+        minZoom={11}
+        maxBounds={SOLAPUR_MAX_BOUNDS}
+        maxBoundsViscosity={1.0}
         style={{ height: "100%", width: "100%" }}
         className="z-0"
         scrollWheelZoom={true}

@@ -47,9 +47,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-              >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                 <img src="/logo.webp" alt="logo" width={40} />
               </div>
               <div

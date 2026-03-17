@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import IssueForm from "@/components/Issues/IssueForm";
 import { ISSUE_CATEGORIES, ISSUE_STATUSES } from "@/lib/constants";
+import LandingPage from "@/components/Landing/LandingPage";
 
 // Dynamic import to avoid SSR issues with Leaflet
 const InteractiveMap = dynamic(
@@ -18,11 +19,11 @@ const InteractiveMap = dynamic(
         <p className="text-gray-500">Loading map...</p>
       </div>
     ),
-  }
+  },
 );
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
@@ -63,7 +64,7 @@ export default function HomePage() {
         },
         (error) => {
           console.log("Geolocation error:", error);
-        }
+        },
       );
     }
   }, []);
@@ -85,13 +86,13 @@ export default function HomePage() {
 
     if (filters.category !== "all") {
       filtered = filtered.filter(
-        (issue: any) => issue.category === filters.category
+        (issue: any) => issue.category === filters.category,
       );
     }
 
     if (filters.status !== "all") {
       filtered = filtered.filter(
-        (issue: any) => issue.status === filters.status
+        (issue: any) => issue.status === filters.status,
       );
     }
 
@@ -99,7 +100,9 @@ export default function HomePage() {
       filtered = filtered.filter(
         (issue: any) =>
           issue.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-          issue.description.toLowerCase().includes(filters.search.toLowerCase())
+          issue.description
+            .toLowerCase()
+            .includes(filters.search.toLowerCase()),
       );
     }
 
@@ -111,7 +114,7 @@ export default function HomePage() {
           userLocation.lat,
           userLocation.lng,
           lat,
-          lng
+          lng,
         );
         return distance <= filters.radius;
       });
@@ -125,7 +128,7 @@ export default function HomePage() {
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
   ) => {
     const R = 6371; // Radius of the Earth in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -156,6 +159,25 @@ export default function HomePage() {
     fetchIssues(); // Refresh issues after form close
   };
 
+  // ── Show landing page for unauthenticated users ──
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 rounded-full animate-spin"
+          style={{
+            borderColor: "rgb(var(--border-primary))",
+            borderTopColor: "rgb(var(--accent-primary))",
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <LandingPage />;
+  }
+
+  // ── Authenticated user: original map experience ──
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -171,14 +193,6 @@ export default function HomePage() {
             Raise community issues and help improve your neighborhood with our
             interactive mapping platform
           </p>
-          {!session && (
-            <button
-              onClick={() => router.push("/auth/signup")}
-              className="btn-primary text-base sm:text-lg animate-bounce-in"
-            >
-              Get Started Today
-            </button>
-          )}
         </div>
 
         {/* Filters */}
@@ -298,9 +312,7 @@ export default function HomePage() {
             className="text-center text-sm mt-4"
             style={{ color: "rgb(var(--text-tertiary))" }}
           >
-            {session
-              ? "Click on the map to place a marker and raise an issue"
-              : "Sign in to raise issues and help improve your community"}
+            Click on the map to place a marker and raise an issue
           </p>
         </div>
 

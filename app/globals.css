@@ -289,6 +289,44 @@ body {
   }
 }
 
+/* Landing page blob animation */
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -50px) scale(1.1); }
+  50% { transform: translate(-20px, 20px) scale(0.9); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
+}
+
+.animate-blob {
+  animation: blobFloat 7s ease-in-out infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Scroll-triggered reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Float hover for feature cards */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.hover-float:hover {
+  animation: floatY 2s ease-in-out infinite;
+}
+
 /* Leaflet overrides */
 .leaflet-container {
   font-family: 'Inter', var(--font-inter), system-ui, sans-serif;
