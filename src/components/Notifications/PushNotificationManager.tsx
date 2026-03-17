@@ -28,6 +28,22 @@ export default function PushNotificationManager() {
             setIsSupported(true);
             registerServiceWorker();
         }
+
+        // Listen for messages from Service Worker to play sound fallback
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type === 'PLAY_NOTIFICATION_SOUND') {
+                const audio = new Audio('/notification/notification.mp3');
+                audio.play().catch(e => {
+                    // Browsers might block auto-play until the user interacts with the page
+                    console.log('Audio playback pending user interaction:', e.name);
+                });
+            }
+        };
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', handleMessage);
+            return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
+        }
     }, [sessionStatus]);
 
     async function registerServiceWorker() {
