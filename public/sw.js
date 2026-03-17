@@ -1,3 +1,13 @@
+self.addEventListener('install', (event) => {
+    // Force the waiting service worker to become the active service worker
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+    // Ensure the new service worker takes control of all pages immediately
+    event.waitUntil(clients.claim());
+});
+
 self.addEventListener('push', function (event) {
     let payload = { title: 'New Notification', body: '' };
 
@@ -15,7 +25,11 @@ self.addEventListener('push', function (event) {
         icon: payload.icon || '/favicon.ico',
         badge: '/favicon.ico',
         data: payload.data || {},
-        vibrate: [100, 50, 100],
+        vibrate: [200, 100, 200, 100, 200, 100, 400],
+        tag: 'raisevoice-issue-update',
+        renotify: true,
+        silent: false,
+        sound: '/notification/notification.mp3', // Note: limited browser support
         actions: [
             { action: 'view', title: 'View Details' },
             { action: 'close', title: 'Close' }

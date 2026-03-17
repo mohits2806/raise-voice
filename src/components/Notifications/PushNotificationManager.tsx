@@ -37,6 +37,9 @@ export default function PushNotificationManager() {
                 updateViaCache: 'none',
             });
             
+            // Force a check for updates immediately
+            await registration.update();
+            
             const sub = await registration.pushManager.getSubscription();
             setSubscription(sub);
 
