@@ -20,11 +20,6 @@ export async function uploadToCloudinary(file: string, folder: string = 'raisevo
         const result = await cloudinary.uploader.upload(file, {
             folder,
             resource_type: 'auto',
-            transformation: [
-                { width: 1200, height: 1200, crop: 'limit' },
-                { quality: 'auto:good' },
-                { fetch_format: 'auto' },
-            ],
         });
 
         return result as CloudinaryUploadResult;

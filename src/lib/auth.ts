@@ -99,5 +99,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return session;
         },
     },
-    secret: process.env.NEXTAUTH_SECRET,
 });
+
+if (!process.env.AUTH_SECRET) {
+    console.error('CRITICAL ERROR: AUTH_SECRET is missing from environment!');
+}

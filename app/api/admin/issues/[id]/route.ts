@@ -4,6 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import Issue from '@/models/Issue';
 import { NextRequest, NextResponse } from 'next/server';
 import { deleteFromCloudinary } from '@/lib/cloudinary';
+import { sendIssueStatusUpdateNotification } from '@/lib/email';
 
 export async function PATCH(
     req: NextRequest,
@@ -34,6 +35,16 @@ export async function PATCH(
             );
         }
 
+        // Fetch current issue to get old status
+        const currentIssue = await Issue.findById(id);
+        if (!currentIssue) {
+            return NextResponse.json(
+                { error: 'Issue not found' },
+                { status: 404 }
+            );
+        }
+        const oldStatus = currentIssue.status;
+
         const issue = await Issue.findByIdAndUpdate(
             id,
             { status },
@@ -45,6 +56,19 @@ export async function PATCH(
                 { error: 'Issue not found' },
                 { status: 404 }
             );
+        }
+
+        // Send status update notification to the user (fire and forget)
+        const populatedUser = issue.userId as any;
+        if (oldStatus !== status && populatedUser?.email) {
+            // FIRE AND FORGET: Don't await the email sending to keep admin UI fast
+            sendIssueStatusUpdateNotification({
+                userEmail: populatedUser.email,
+                userName: populatedUser.name || 'User',
+                issue,
+                oldStatus,
+                newStatus: status,
+            }).catch((err) => console.error('Failed to send status update notification:', err));
         }
 
         return NextResponse.json({ issue });

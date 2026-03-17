@@ -98,6 +98,41 @@ export async function POST(request: Request) {
       } as any;
     }
 
+    // Send admin notification to all admins
+    try {
+        // Fire and forget (don't wait for email to send to respond to user)
+        (async () => {
+            const { sendAdminNewIssueNotification } = await import("@/lib/email");
+            const User = (await import("@/models/User")).default;
+            
+            // Get all admin emails from database
+            const dbAdmins = await User.find({ role: 'admin' }).select('email').lean();
+            const dbAdminEmails = dbAdmins.map(admin => admin.email);
+            
+            // Get admin email from env (if any)
+            const envAdminEmail = process.env.ADMIN_EMAIL;
+            
+            // Create a unique set of all admin emails
+            const allAdminEmails = new Set([...dbAdminEmails]);
+            if (envAdminEmail) {
+                // Support comma separated list in env
+                envAdminEmail.split(',').forEach(email => allAdminEmails.add(email.trim()));
+            }
+
+            if (allAdminEmails.size > 0) {
+                const recipients = Array.from(allAdminEmails);
+                console.log(`Sending notifications to ${recipients.length} admins:`, recipients);
+                
+                await sendAdminNewIssueNotification({
+                    adminEmails: recipients,
+                    issue,
+                }).catch((err) => console.error("Failed to send admin notification:", err));
+            }
+        })();
+    } catch (err) {
+        console.error("Error setting up admin notification:", err);
+    }
+
     return NextResponse.json({ issue: responseIssue }, { status: 201 });
   } catch (error: unknown) {
     console.error("Create issue error:", error);
