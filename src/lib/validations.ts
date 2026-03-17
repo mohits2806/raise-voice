@@ -21,11 +21,12 @@ export const updateIssueSchema = z.object({
 export const signUpSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
+    phone: z.string().regex(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits').optional(),
     password: z.string().min(8, 'Password must be at least 8 characters').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
 });
 
 export const signInSchema = z.object({
-    email: z.string().email('Invalid email address'),
+    emailOrPhone: z.string().min(1, 'Email or phone number is required'),
     password: z.string().min(1, 'Password is required'),
 });
 

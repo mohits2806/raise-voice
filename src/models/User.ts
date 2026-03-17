@@ -49,6 +49,12 @@ const UserSchema = new Schema<IUser>(
                 },
             },
         ],
+        phone: {
+            type: String,
+            unique: true,
+            sparse: true, // allows multiple users without a phone number
+            trim: true,
+        },
     },
     {
         timestamps: true,

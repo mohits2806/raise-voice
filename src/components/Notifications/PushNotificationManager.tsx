@@ -85,6 +85,20 @@ export default function PushNotificationManager() {
 
     async function subscribeToPush() {
         try {
+            // If the user has already denied permissions, bail out silently
+            if (Notification.permission === 'denied') {
+                return;
+            }
+
+            // If permission hasn't been asked yet, request it first
+            if (Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    // User dismissed or denied — don't attempt to subscribe
+                    return;
+                }
+            }
+
             const registration = await navigator.serviceWorker.ready;
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -96,6 +110,10 @@ export default function PushNotificationManager() {
             setSubscription(sub);
             await syncSubscriptionWithBackend(sub);
         } catch (error) {
+            // Only log unexpected errors, not permission-related ones
+            if (error instanceof DOMException && error.name === 'NotAllowedError') {
+                return; // Permission was denied at the OS level or browser level
+            }
             console.error('Failed to subscribe to push notifications:', error);
         }
     }

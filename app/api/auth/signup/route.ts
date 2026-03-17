@@ -13,11 +13,18 @@ export async function POST(request: Request) {
 
         await dbConnect();
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email: validatedData.email });
+        // Check if user already exists by email
+        const existingEmail = await User.findOne({ email: validatedData.email });
+        if (existingEmail) {
+            return NextResponse.json({ error: 'An account with this email already exists' }, { status: 400 });
+        }
 
-        if (existingUser) {
-            return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+        // Check if phone number is already taken
+        if (validatedData.phone) {
+            const existingPhone = await User.findOne({ phone: validatedData.phone });
+            if (existingPhone) {
+                return NextResponse.json({ error: 'An account with this phone number already exists' }, { status: 400 });
+            }
         }
 
         // Hash password
@@ -27,6 +34,7 @@ export async function POST(request: Request) {
         const user = await User.create({
             name: validatedData.name,
             email: validatedData.email,
+            phone: validatedData.phone || '',
             password: hashedPassword,
             provider: 'credentials',
         });
@@ -38,6 +46,7 @@ export async function POST(request: Request) {
                     id: user._id,
                     name: user.name,
                     email: user.email,
+                    phone: user.phone,
                 },
             },
             { status: 201 }

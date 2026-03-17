@@ -9,6 +9,7 @@ import {
   Mail,
   Lock,
   User,
+  Phone,
   AlertCircle,
   Eye,
   EyeOff,
@@ -23,6 +24,7 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -42,6 +44,7 @@ export default function SignUpPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone || undefined,
           password: formData.password,
         }),
       });
@@ -53,7 +56,7 @@ export default function SignUpPage() {
       }
       // Auto sign‑in after successful signup
       const result = await signIn("credentials", {
-        email: formData.email,
+        emailOrPhone: formData.email,
         password: formData.password,
         redirect: false,
       });
@@ -71,6 +74,19 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     await signIn("google", { callbackUrl: "/" });
+  };
+
+  const inputStyle = {
+    backgroundColor: "rgb(var(--bg-tertiary))",
+    border: "2px solid rgb(var(--border-primary))",
+    color: "rgb(var(--text-primary))",
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "rgb(var(--accent-primary))";
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "rgb(var(--border-primary))";
   };
 
   return (
@@ -120,19 +136,9 @@ export default function SignUpPage() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="Your name"
               />
             </div>
@@ -161,22 +167,54 @@ export default function SignUpPage() {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="your@email.com"
               />
             </div>
+          </div>
+          {/* Phone Number */}
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium mb-2"
+              style={{ color: "rgb(var(--text-primary))" }}
+            >
+              Phone Number{" "}
+              <span style={{ color: "rgb(var(--text-tertiary))" }}>
+                (optional)
+              </span>
+            </label>
+            <div className="relative">
+              <Phone
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                size={20}
+                style={{ color: "rgb(var(--text-tertiary))" }}
+              />
+              <input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => {
+                  // Only allow digits
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setFormData({ ...formData, phone: val });
+                }}
+                className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                placeholder="10-digit mobile number"
+                maxLength={10}
+              />
+            </div>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "rgb(var(--text-tertiary))" }}
+            >
+              Add your phone number to enable mobile login
+            </p>
           </div>
           {/* Password */}
           <div>
@@ -203,19 +241,9 @@ export default function SignUpPage() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 className="w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="••••••••"
               />
               <button
@@ -258,19 +286,9 @@ export default function SignUpPage() {
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
                 className="w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="••••••••"
               />
               <button

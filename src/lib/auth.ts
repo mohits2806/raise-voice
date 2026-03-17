@@ -17,26 +17,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
-                email: { label: 'Email', type: 'email' },
+                emailOrPhone: { label: 'Email or Phone', type: 'text' },
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    throw new Error('Email and password are required');
+                if (!credentials?.emailOrPhone || !credentials?.password) {
+                    throw new Error('Email/phone and password are required');
                 }
 
                 await dbConnect();
 
-                const user = await User.findOne({ email: credentials.email }).select('+password');
+                const identifier = credentials.emailOrPhone as string;
+                // Detect if the input is a phone number (10 digits) or email
+                const isPhone = /^[0-9]{10}$/.test(identifier);
+
+                const user = await User.findOne(
+                    isPhone ? { phone: identifier } : { email: identifier.toLowerCase() }
+                ).select('+password');
 
                 if (!user || !user.password) {
-                    throw new Error('Invalid email or password');
+                    throw new Error('Invalid email/phone or password');
                 }
 
                 const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
 
                 if (!isPasswordValid) {
-                    throw new Error('Invalid email or password');
+                    throw new Error('Invalid email/phone or password');
                 }
 
                 return {
@@ -73,6 +79,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     if (dbUser) {
                         // Update or set the role
                         token.role = dbUser.role || 'user';
+                        // Keep phone in sync
+                        token.phone = dbUser.phone || null;
 
                         // If user doesn't have a role yet (OAuth users), set it
                         if (!dbUser.role) {
@@ -95,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.role = (token.role as string) || 'user';
+                session.user.phone = token.phone ? String(token.phone) : null;
             }
             return session;
         },

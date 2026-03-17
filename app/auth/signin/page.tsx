@@ -4,7 +4,15 @@ import { signIn } from "next-auth/react";
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Phone,
+  Lock,
+  AlertCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -13,9 +21,12 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    emailOrPhone: "",
     password: "",
   });
+
+  // Detect whether the user is typing a phone number (all digits) or email
+  const isPhone = /^[0-9]*$/.test(formData.emailOrPhone) && formData.emailOrPhone.length > 0;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,12 +34,12 @@ export default function SignInPage() {
     setLoading(true);
     try {
       const result = await signIn("credentials", {
-        email: formData.email,
+        emailOrPhone: formData.emailOrPhone,
         password: formData.password,
         redirect: false,
       });
       if (result?.error) {
-        setError("Invalid email or password");
+        setError("Invalid email/phone or password");
         setLoading(false);
         return;
       }
@@ -42,6 +53,19 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     await signIn("google", { callbackUrl: "/" });
+  };
+
+  const inputStyle = {
+    backgroundColor: "rgb(var(--bg-tertiary))",
+    border: "2px solid rgb(var(--border-primary))",
+    color: "rgb(var(--text-primary))",
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "rgb(var(--accent-primary))";
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "rgb(var(--border-primary))";
   };
 
   return (
@@ -66,46 +90,53 @@ export default function SignInPage() {
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
+          {/* Email or Phone */}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="emailOrPhone"
               className="block text-sm font-medium mb-2"
               style={{ color: "rgb(var(--text-primary))" }}
             >
-              Email
+              Email or Phone Number
             </label>
             <div className="relative">
-              <Mail
-                className="absolute left-3 top-1/2 -translate-y-1/2"
-                size={20}
-                style={{ color: "rgb(var(--text-tertiary))" }}
-              />
+              {isPhone ? (
+                <Phone
+                  className="absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-200"
+                  size={20}
+                  style={{ color: "rgb(var(--text-tertiary))" }}
+                />
+              ) : (
+                <Mail
+                  className="absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-200"
+                  size={20}
+                  style={{ color: "rgb(var(--text-tertiary))" }}
+                />
+              )}
               <input
-                id="email"
-                type="email"
+                id="emailOrPhone"
+                type="text"
                 required
-                value={formData.email}
+                value={formData.emailOrPhone}
                 onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
+                  setFormData({ ...formData, emailOrPhone: e.target.value })
                 }
                 className="w-full pl-12 pr-4 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
-                placeholder="your@email.com"
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                placeholder="your@email.com or 10-digit number"
+                autoComplete="username"
               />
             </div>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "rgb(var(--text-tertiary))" }}
+            >
+              {isPhone
+                ? "Signing in with phone number"
+                : "Enter your email or 10-digit phone number"}
+            </p>
           </div>
           {/* Password */}
           <div>
@@ -131,20 +162,11 @@ export default function SignInPage() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 className="w-full pl-12 pr-12 py-3 rounded-xl font-medium transition-all duration-300"
-                style={{
-                  backgroundColor: "rgb(var(--bg-tertiary))",
-                  border: "2px solid rgb(var(--border-primary))",
-                  color: "rgb(var(--text-primary))",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--accent-primary))")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor =
-                    "rgb(var(--border-primary))")
-                }
+                style={inputStyle}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -246,7 +268,7 @@ export default function SignInPage() {
           className="text-center mt-6 text-sm"
           style={{ color: "rgb(var(--text-secondary))" }}
         >
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/auth/signup"
             className="font-semibold underline"

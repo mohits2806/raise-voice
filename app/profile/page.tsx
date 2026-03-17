@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User as UserIcon, Mail, Calendar, MapPin, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, MapPin, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { ISSUE_CATEGORIES, ISSUE_STATUSES } from '@/lib/constants';
 import { format } from 'date-fns';
 
@@ -103,6 +103,12 @@ export default function ProfilePage() {
                   <Mail size={18} />
                   <span className="text-sm sm:text-base">{session.user.email}</span>
                 </div>
+                {session.user.phone && (
+                  <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
+                    <Phone size={18} />
+                    <span className="text-sm sm:text-base">{session.user.phone}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <Calendar size={18} />
                   <span className="text-sm sm:text-base">Member since {format(new Date(), 'MMM yyyy')}</span>

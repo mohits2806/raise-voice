@@ -18,6 +18,7 @@ export interface IUser extends Document {
   provider?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  phone?: string;
   pushSubscriptions?: IPushSubscription[];
   createdAt: Date;
   updatedAt: Date;
