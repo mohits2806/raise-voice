@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import Issue from "@/models/Issue";
+import User from "@/models/User";
 import { createIssueSchema } from "@/lib/validations";
+import { sendPushToUser } from "@/lib/push";
 
 // GET: Fetch all issues with optional filtering
 export async function GET(request: Request) {
@@ -86,7 +88,7 @@ export async function POST(request: Request) {
 
     const populatedIssue = await Issue.findById(issue._id).populate(
       "userId",
-      "name email",
+      "name email pushSubscriptions",
     );
 
     // Always anonymize - never expose personal info
@@ -103,7 +105,6 @@ export async function POST(request: Request) {
         // Fire and forget (don't wait for email to send to respond to user)
         (async () => {
             const { sendAdminNewIssueNotification } = await import("@/lib/email");
-            const User = (await import("@/models/User")).default;
             
             // Get all admin emails from database
             const dbAdmins = await User.find({ role: 'admin' }).select('email').lean();
@@ -127,6 +128,23 @@ export async function POST(request: Request) {
                     adminEmails: recipients,
                     issue,
                 }).catch((err) => console.error("Failed to send admin notification:", err));
+
+                // PUSH NOTIFICATION FOR ADMINS
+                try {
+                    const admins = await User.find({ role: 'admin' }).select('name email pushSubscriptions');
+                    
+                    for (const admin of admins) {
+                        await sendPushToUser(admin, {
+                            title: `🚨 New Issue: ${issue.category.toUpperCase()}`,
+                            body: issue.title,
+                            data: {
+                                url: `${process.env.NEXT_PUBLIC_APP_URL}/admin/issues`
+                            }
+                        });
+                    }
+                } catch (pushErr) {
+                    console.error("Failed to send admin push notifications:", pushErr);
+                }
             }
         })();
     } catch (err) {

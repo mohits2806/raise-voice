@@ -40,12 +40,28 @@ const UserSchema = new Schema<IUser>(
             type: Date,
             select: false,
         },
+        pushSubscriptions: [
+            {
+                endpoint: String,
+                keys: {
+                    p256dh: String,
+                    auth: String,
+                },
+            },
+        ],
     },
     {
         timestamps: true,
     }
 );
 
-const User: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
+// In development, handle model recompilation
+if (process.env.NODE_ENV === 'development') {
+    if (mongoose.models.User) {
+        delete mongoose.models.User;
+    }
+}
+
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default User;

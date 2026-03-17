@@ -6,6 +6,7 @@ import SessionProvider from "@/components/Providers/SessionProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
+import PushNotificationManager from "@/components/Notifications/PushNotificationManager";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -59,6 +60,7 @@ export default async function RootLayout({
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
+              <PushNotificationManager />
             </div>
           </ThemeProvider>
         </SessionProvider>

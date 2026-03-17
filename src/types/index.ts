@@ -1,5 +1,13 @@
 import { Document, Types } from 'mongoose';
 
+export interface IPushSubscription {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
@@ -10,6 +18,7 @@ export interface IUser extends Document {
   provider?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  pushSubscriptions?: IPushSubscription[];
   createdAt: Date;
   updatedAt: Date;
 }

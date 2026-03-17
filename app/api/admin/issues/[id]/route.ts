@@ -2,9 +2,11 @@ import { auth } from '@/lib/auth';
 import { requireAdmin } from '@/lib/admin-middleware';
 import dbConnect from '@/lib/mongodb';
 import Issue from '@/models/Issue';
+import User from '@/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import { deleteFromCloudinary } from '@/lib/cloudinary';
 import { sendIssueStatusUpdateNotification } from '@/lib/email';
+import { sendPushToUser } from '@/lib/push';
 
 export async function PATCH(
     req: NextRequest,
@@ -49,7 +51,7 @@ export async function PATCH(
             id,
             { status },
             { new: true }
-        ).populate('userId', 'name email');
+        ).populate('userId', 'name email pushSubscriptions');
 
         if (!issue) {
             return NextResponse.json(
@@ -69,6 +71,28 @@ export async function PATCH(
                 oldStatus,
                 newStatus: status,
             }).catch((err) => console.error('Failed to send status update notification:', err));
+
+            // PUSH NOTIFICATION
+            (async () => {
+                try {
+                    const statusEmoji: { [key: string]: string } = {
+                        'open': '🟡',
+                        'in-progress': '🔵',
+                        'resolved': '🟢',
+                    };
+                    const emoji = statusEmoji[status] || '📢';
+                    
+                    await sendPushToUser(issue.userId, {
+                        title: `Issue ${status.toUpperCase()}! ${emoji}`,
+                        body: `Your report "${issue.title}" is now ${status}. Click to view details.`,
+                        data: {
+                            url: `${process.env.NEXT_PUBLIC_APP_URL}/issues/${issue._id}`
+                        }
+                    });
+                } catch (pushErr) {
+                    console.error('Failed to send status update push notification:', pushErr);
+                }
+            })();
         }
 
         return NextResponse.json({ issue });
