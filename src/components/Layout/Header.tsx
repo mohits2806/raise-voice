@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, LogOut, User, Sun, Moon, AlertTriangle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Menu, X, LogOut, User, Sun, Moon, AlertTriangle, Mail, Phone } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Header() {
@@ -14,6 +14,7 @@ export default function Header() {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,12 +26,14 @@ export default function Header() {
 
   // Close menus when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-      setShowUserMenu(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
     };
     if (showUserMenu) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showUserMenu]);
 
@@ -243,62 +246,105 @@ export default function Header() {
               {status === "loading" ? (
                 <div className="w-24 h-10 bg-gray-200 dark:bg-white/10 rounded-lg animate-pulse"></div>
               ) : session ? (
-                <div className="flex items-center gap-3 relative">
+                <div className="flex items-center gap-3 relative" ref={userMenuRef}>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowUserMenu(!showUserMenu);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300"
+                    className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 border-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${showUserMenu ? 'scale-110 shadow-md ring-2 ring-blue-500 ring-offset-2' : 'hover:scale-105 hover:shadow-md'}`}
                     style={{
-                      backgroundColor: "rgb(var(--bg-secondary))",
-                      color: "rgb(var(--text-primary))",
+                      backgroundColor: "rgba(var(--accent-primary), 0.1)",
+                      borderColor: showUserMenu ? "rgb(var(--accent-primary))" : "rgb(var(--border-primary))",
+                      color: "rgb(var(--accent-primary))",
                     }}
+                    aria-label="User Menu"
                   >
-                    <span className="font-medium">{session.user?.name}</span>
+                    <User size={20} />
                   </button>
 
+                  {/* Enhanced Animated User Dropdown Menu */}
                   {showUserMenu && (
                     <div
-                      className="absolute right-0 mt-2 w-48 top-full animate-slide-down"
+                      className="absolute right-0 mt-3 top-full w-80 animate-slide-up origin-top-right z-50 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl transition-all duration-300 transform opacity-100 scale-100"
                       style={{
-                        background: "rgb(var(--bg-tertiary))",
+                        background: "rgba(var(--bg-primary), 0.95)",
                         border: "1px solid rgb(var(--border-primary))",
-                        boxShadow: "var(--shadow-xl)",
-                        borderRadius: "0.75rem",
                       }}
                     >
-                      <div className="py-2">
+                      {/* Gradient Header Area */}
+                      <div 
+                        className="px-6 pt-6 pb-4 flex flex-col items-center relative"
+                        style={{
+                          background: "linear-gradient(to bottom, rgba(var(--accent-primary), 0.1), transparent)",
+                          borderBottom: "1px solid rgba(var(--border-primary), 0.5)"
+                        }}
+                      >
+                         <div 
+                          className="w-16 h-16 rounded-full flex items-center justify-center shadow-md mb-3 bg-gradient-to-tr from-[rgba(var(--accent-primary),0.2)] to-[rgba(var(--accent-secondary),0.2)]"
+                          style={{
+                            border: "3px solid rgb(var(--bg-primary))",
+                            color: "rgb(var(--accent-primary))",
+                          }}
+                        >
+                          <User size={28} />
+                        </div>
+                        <h3 className="font-display font-bold text-lg leading-tight w-full text-center truncate" style={{ color: "rgb(var(--text-primary))" }}>
+                          {session.user?.name || "User"}
+                        </h3>
+                        <p className="text-xs font-semibold px-2 py-0.5 mt-2 rounded-full w-fit bg-[rgba(var(--accent-primary),0.1)] text-[rgb(var(--accent-primary))]" >
+                          {session.user?.role === 'admin' ? 'Administrator' : 'Community Member'}
+                        </p>
+                      </div>
+
+                      {/* User Details Area */}
+                      <div className="px-5 py-3 space-y-2">
+                        <div className="flex items-center gap-3 text-sm px-2 py-1.5 rounded-lg transition-colors" style={{ color: "rgb(var(--text-secondary))" }}>
+                           <Mail size={16} className="shrink-0 opacity-70" style={{ color: 'rgb(var(--accent-primary))' }} />
+                           <span className="truncate">{session.user?.email}</span>
+                        </div>
+                        {session.user?.phone && (
+                          <div className="flex items-center gap-3 text-sm px-2 py-1.5 rounded-lg transition-colors" style={{ color: "rgb(var(--text-secondary))" }}>
+                             <Phone size={16} className="shrink-0 opacity-70" style={{ color: 'rgb(var(--accent-primary))' }} />
+                             <span className="truncate">{session.user?.phone}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons Area */}
+                      <div 
+                        className="p-4 flex flex-col gap-2"
+                        style={{
+                          backgroundColor: "rgba(var(--bg-secondary), 0.5)",
+                          borderTop: "1px solid rgba(var(--border-primary), 0.5)"
+                        }}
+                      >
                         <Link
                           href="/profile"
-                          className="block px-4 py-2 transition-colors duration-200"
-                          style={{ color: "rgb(var(--text-primary))" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.backgroundColor =
-                              "rgba(var(--accent-primary), 0.1)")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.backgroundColor =
-                              "transparent")
-                          }
+                          className="w-full btn-primary py-2.5 text-sm flex items-center justify-center gap-2 hover:shadow-lg transition-all"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          👤 Profile
+                          <User size={16} />
+                          View Profile
                         </Link>
                         <button
                           onClick={handleSignOutRequest}
-                          className="w-full text-left px-4 py-2 transition-colors duration-200 flex items-center gap-2"
-                          style={{ color: "rgb(var(--text-primary))" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.backgroundColor =
-                              "rgba(var(--accent-error), 0.1)")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.backgroundColor =
-                              "transparent")
-                          }
+                          className="w-full py-2.5 px-4 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
+                          style={{ 
+                            color: "rgb(var(--accent-error))",
+                            backgroundColor: "rgba(var(--accent-error), 0.1)",
+                            border: "1px solid rgba(var(--accent-error), 0.2)"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "rgba(var(--accent-error), 0.2)";
+                            e.currentTarget.style.transform = "translateY(-1px)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "rgba(var(--accent-error), 0.1)";
+                            e.currentTarget.style.transform = "translateY(0)";
+                          }}
                         >
-                          <LogOut size={18} />
+                          <LogOut size={16} />
                           Sign Out
                         </button>
                       </div>

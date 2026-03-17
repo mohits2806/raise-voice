@@ -11,6 +11,21 @@ import {
   CheckCircle,
   AlertTriangle,
 } from "lucide-react";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  background: 'rgb(var(--bg-secondary))',
+  color: 'rgb(var(--text-primary))',
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -23,13 +38,15 @@ function ResetPasswordForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
   const [tokenValid, setTokenValid] = useState(true);
 
   useEffect(() => {
     if (!token) {
       setTokenValid(false);
-      setError("Invalid reset link. Please request a new password reset.");
+      Toast.fire({
+        icon: 'error',
+        title: "Invalid reset link. Please request a new password reset."
+      });
     }
   }, [token]);
 
@@ -48,15 +65,20 @@ function ResetPasswordForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      Toast.fire({
+        icon: 'error',
+        title: "Passwords do not match"
+      });
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      Toast.fire({
+        icon: 'error',
+        title: "Password must be at least 6 characters"
+      });
       return;
     }
 
@@ -76,9 +98,16 @@ function ResetPasswordForm() {
       }
 
       setSuccess(true);
+      Toast.fire({
+        icon: 'success',
+        title: "Password reset successful"
+      });
       setTimeout(() => router.push("/auth/signin"), 3000);
     } catch (err: any) {
-      setError(err.message || "Failed to reset password");
+      Toast.fire({
+        icon: 'error',
+        title: err.message || "Failed to reset password"
+      });
     } finally {
       setLoading(false);
     }
@@ -165,7 +194,7 @@ function ResetPasswordForm() {
             className="text-sm sm:text-base mb-6"
             style={{ color: "rgb(var(--text-secondary))" }}
           >
-            {error || "This password reset link is invalid or has expired."}
+            This password reset link is invalid or has expired.
           </p>
 
           <Link
@@ -209,24 +238,6 @@ function ResetPasswordForm() {
             Enter your new password below
           </p>
         </div>
-
-        {error && (
-          <div
-            className="p-4 rounded-xl mb-6 flex items-start gap-3"
-            style={{
-              backgroundColor: "rgba(var(--accent-error), 0.1)",
-              border: "2px solid rgb(var(--accent-error))",
-            }}
-          >
-            <span className="text-xl">⚠️</span>
-            <span
-              className="text-sm"
-              style={{ color: "rgb(var(--accent-error))" }}
-            >
-              {error}
-            </span>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* New Password */}

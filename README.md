@@ -62,82 +62,67 @@ _Empowering citizens to report and track local infrastructure issues without fea
 
 ## ✨ Key Features
 
-### 🔐 **Anonymous Reporting**
+### 🌍 100% Anonymous Reporting
 
-- **Complete Privacy**: User details (name, email) are NEVER shown to anyone, including admins
-- **Safe Reporting**: Report issues without fear of retaliation
-- **Anonymous by Default**: All reports are automatically anonymized
+- **Complete Privacy**: User details (name, email) are NEVER shown to anyone (including admins)
+- **Anonymous by Default**: Every report is anonymized at the API layer
+- **Optional Attribution**: Reporters can choose to attach their identity when desired (opt-in)
 
-### 🗺️ **Interactive Map Interface**
+### 🗺️ Map-First Issue Reporting
 
-- **Click-to-Report**: Simply click anywhere on the map to select location
+- **Click-to-Report**: Tap the map to drop a pin and start reporting instantly
 - **Live Issue Markers**: Color-coded markers (🔴 Open, 🟡 In Progress, 🟢 Resolved)
-- **Category Icons**: Emoji-based category indicators (💧 Water, 🛣️ Roads, etc.)
-- **Geolocation**: Auto-detect user location with "Go to My Location" button
-- **No API Keys**: Uses free OpenStreetMap via Leaflet.js
+- **Geo Search + Filtering**: Filter by category, status, and keyword
+- **Auto Geolocation**: Quick “Go to My Location” button for accurate reporting
+- **No API Keys Required**: Uses OpenStreetMap via Leaflet.js for a free global map
 
-### 📸 **Rich Media Upload**
+### 📸 Smart Media Upload (Cloudinary)
 
-- **Multi-Image Support**: Upload up to multiple photos per issue
-- **Camera Integration**: Capture photos directly from device camera
-- **Cloudinary Storage**: Reliable cloud storage with automatic optimization
-- **Image Deletion**: Automatic cleanup when issues are deleted
+- **Multi-Image Support**: Attach multiple photos per report (up to 5)
+- **Camera + Gallery Uploads**: Upload directly from camera or choose from device storage
+- **Automatic Cleanup**: Deleted issues automatically remove images from Cloudinary
 
-### 👑 **Comprehensive Admin Dashboard**
+### 🔔 Real-Time Notifications (Push + Email)
 
-- **Issue Management**: View, update status, and manage all reported issues
-- **Real-time Statistics**: Track open/in-progress/resolved issues
-- **Status Updates**: Mark issues as "In Progress" or "Resolved"
-- **Bulk Operations**: Efficient management of multiple issues
-- **Responsive Table**: Mobile-friendly admin interface
-- **Loading Indicators**: Visual feedback during operations
+- **Push Notifications**: Browser push for admins and reporters (status changes, new reports)
+- **Email Alerts**: Notify admins on new submissions and users on status changes
+- **Auto-Subscription**: Users are prompted to enable notifications with a smart install flow
 
-### 🔐 **Advanced Authentication**
+### 📱 Progressive Web App (PWA)
 
-- **Dual Auth Methods**:
-  - Email/Password with bcrypt hashing
-  - Google OAuth 2.0 integration
-- **Forgot Password Flow**:
-  - Email-based password reset
-  - Secure token generation (1-hour expiration)
-  - Beautiful email templates via Resend
-- **Session Management**: JWT-based sessions with NextAuth.js v5
-- **Role-Based Access**: Separate user and admin roles
+- **Installable Experience**: Add RaiseVoice to home screen on desktop & mobile
+- **Offline-First**: Service worker caching for faster repeat loads and basic offline support
+- **Smart Install Prompt**: Custom “Install App” companion UI with iOS support
 
-### 🎨 **Premium UI/UX**
+### 👑 Admin Control Center (Fast + Powerful)
 
-- **Theme Toggle**:
-  - Light Mode: Clean, professional white theme
-  - Dark Mode: Premium gradient backgrounds with glassmorphism
-- **Smooth Animations**: Fade-ins, slide-ups, scale effects, micro-interactions
-- **Responsive Design**: Mobile-first approach, works on all devices
-- **Modern Components**: Card-based layouts with theme-aware colors
-- **Accessibility**: Keyboard navigation and screen reader support
+- **Full Issue Lifecycle**: View, sort, filter, update status, and delete issues
+- **Live Dashboard Metrics**: See open/in-progress/resolved counts and category breakdowns
+- **Bulk Actions**: Update multiple issues quickly
+- **Audit Trail Friendly**: View latest activity and user submission history
 
-### 📊 **Issue Management**
+### 🔐 Secure Authentication & Authorization
 
-- **User Dashboard**: Personal profile showing all your reports
-- **Status Tracking**: Monitor progress from reporting to resolution
-- **7 Categories**:
-  - 💧 Water Supply
-  - 🌊 Puddle/Drainage
-  - 🛣️ Road Damage
-  - 🗑️ Garbage/Waste
-  - ⚡ Electricity
-  - 💡 Street Light
-  - 📝 Other
-- **Advanced Filtering**: Filter by category, status, search keywords
-- **Creator Controls**: Update status or delete your own issues
+- **Flexible Login**:
+  - Email + password (bcrypt hashed)
+  - Google OAuth (auto-account creation)
+- **Forgot Password With Tokens**: Secure 1-hour reset tokens delivered via email
+- **Session Security**: JWT sessions, httpOnly cookies, and NextAuth CSRF protection
+- **Role-Based Access Control**: Admin-only APIs and pages
 
-### 🛡️ **Security & Performance**
+### 🎨 World-Class Design (Best In The World)
 
-- **CORS Protection**: Whitelist-based origin validation
-- **Security Headers**: HSTS, X-Frame-Options, CSP, X-XSS-Protection
-- **Input Validation**: Server-side validation with Zod schemas
-- **SQL Injection Prevention**: Mongoose ODM with parameterized queries
-- **XSS Protection**: Sanitized inputs and outputs
-- **Rate Limiting**: Protection against abuse
-- **Next.js 16**: Latest framework with Turbopack for blazing fast builds
+- **Fluid Animations**: Micro-interactions, smooth transitions, and motion polish
+- **Theme-Driven UI**: Light/dark themes with consistent colors and smooth gradients
+- **Accessible**: Keyboard navigation + screen-reader friendly interfaces
+- **Mobile First**: Optimized for small screens with responsive layouts
+
+### 🛡️ Security & Performance (Production Ready)
+
+- **CORS & Security Headers**: Strict origin checks + HSTS, CSP, X-Frame-Options, etc.
+- **Server-Side Validation**: Zod schemas + Mongoose model validation
+- **XSS & Injection Protection**: Sanitized input and parameterized DB queries
+- **Fast Builds**: Next.js 16 + Turbopack + optimized caching
 
 ---
 
@@ -812,22 +797,19 @@ This project is licensed under a **Custom License** - see the [LICENSE](LICENSE)
 
 - [x] Anonymous issue reporting
 - [x] Interactive map interface
-- [x] Image upload with Cloudinary
-- [x] User authentication
-- [x] Google OAuth integration
-- [x] Admin dashboard
-- [x] Forgot password flow
-- [x] Light/dark theme
-- [x] CORS protection
-- [x] Security headers
-- [ ] Email notifications for users
+- [x] Multi-image upload + Cloudinary media storage
+- [x] User authentication (email/password + Google OAuth)
+- [x] Forgot password flow (email + secure tokens)
+- [x] Admin dashboard & real-time analytics
+- [x] Light/dark theme + world-class UI design
+- [x] PWA install + offline-friendly service worker
+- [x] Push notifications (admin & reporter updates)
+- [x] Email notifications (admin alerts, status updates)
 - [ ] Issue commenting system
 - [ ] Voting/upvoting issues
 - [ ] Mobile app (React Native)
-- [ ] Analytics dashboard
 - [ ] PDF export reports
 - [ ] Multi-language support
-- [ ] Push notifications
 
 ---
 

@@ -3,16 +3,44 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User as UserIcon, Mail, Phone, Calendar, MapPin, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, MapPin, TrendingUp, CheckCircle, Clock, AlertCircle, Edit2, Check, X, Loader } from 'lucide-react';
 import { ISSUE_CATEGORIES, ISSUE_STATUSES } from '@/lib/constants';
 import { format } from 'date-fns';
+import Swal from 'sweetalert2';
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  background: 'rgb(var(--bg-secondary))',
+  color: 'rgb(var(--text-primary))',
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [issues, setIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+
+  // Edit states for Modal
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      setEditName(session.user.name || '');
+      setEditPhone(session.user.phone || '');
+    }
+  }, [session]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -67,6 +95,54 @@ export default function ProfilePage() {
     ? issues 
     : issues.filter((issue) => issue.status === filter);
 
+  const handleSaveProfile = async () => {
+    if (!editName.trim()) {
+      Toast.fire({
+        icon: 'error',
+        title: 'Name is required'
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName, phone: editPhone }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to update profile');
+      }
+
+      // Important: NextAuth `update` forces a session refresh
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          name: editName,
+          phone: editPhone
+        }
+      });
+      
+      setIsEditing(false);
+      Toast.fire({
+        icon: 'success',
+        title: 'Profile updated successfully'
+      });
+    } catch (err: any) {
+      Toast.fire({
+        icon: 'error',
+        title: err.message
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const stats = {
     total: issues.length,
     open: issues.filter((i) => i.status === 'open').length,
@@ -78,40 +154,55 @@ export default function ProfilePage() {
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Profile Header */}
-        <div className="card p-6 sm:p-8 mb-6 animate-fade-in">
+        <div className="card p-6 sm:p-8 mb-6 animate-fade-in relative">
+          {!isEditing ? (
+            <button 
+              onClick={() => {
+                setEditName(session.user.name || '');
+                setEditPhone(session.user.phone || '');
+                setIsEditing(true);
+              }}
+              className="absolute top-4 right-4 p-2 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              title="Edit Profile"
+            >
+              <Edit2 size={20} />
+            </button>
+          ) : null}
+
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Profile Picture */}
             <div className="relative">
                 <div 
-                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 rounded-full flex items-center justify-center shadow-lg"
                   style={{
-                    backgroundColor: 'rgb(var(--bg-secondary))',
+                    backgroundColor: 'rgba(var(--accent-primary), 0.1)',
                     border: '4px solid rgb(var(--border-primary))',
                   }}
                 >
-                 <UserIcon size={48} style={{ color: 'rgb(var(--text-tertiary))' }} />
+                 <UserIcon size={48} style={{ color: 'rgb(var(--accent-primary))' }} />
                 </div>
             </div>
 
             {/* User Info */}
-            <div className="flex-1 text-center md:text-left">
+            <div className="flex-1 text-center md:text-left w-full">
               <h1 className="text-2xl sm:text-3xl font-bold font-display mb-2" style={{ color: 'rgb(var(--text-primary))' }}>
                 {session.user.name || 'Anonymous User'}
               </h1>
-              <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
+              
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-4 mt-2">
                 <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <Mail size={18} />
-                  <span className="text-sm sm:text-base">{session.user.email}</span>
+                  <span className="text-sm sm:text-base font-medium">{session.user.email}</span>
                 </div>
                 {session.user.phone && (
                   <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                     <Phone size={18} />
-                    <span className="text-sm sm:text-base">{session.user.phone}</span>
+                    <span className="text-sm sm:text-base font-medium">{session.user.phone}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 justify-center md:justify-start" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <Calendar size={18} />
-                  <span className="text-sm sm:text-base">Member since {format(new Date(), 'MMM yyyy')}</span>
+                  <span className="text-sm sm:text-base font-medium">Member since {format(new Date(), 'MMM yyyy')}</span>
                 </div>
               </div>
             </div>
@@ -305,6 +396,145 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Profile Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div 
+            className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-slide-up"
+            style={{
+              backgroundColor: 'rgb(var(--bg-primary))',
+              border: '1px solid rgb(var(--border-primary))',
+            }}
+          >
+            {/* Modal Header */}
+            <div 
+              className="px-6 py-4 flex items-center justify-between border-b"
+              style={{
+                borderColor: 'rgb(var(--border-primary))',
+                backgroundColor: 'rgba(var(--bg-secondary), 0.5)'
+              }}
+            >
+              <h3 className="text-lg font-bold font-display" style={{ color: 'rgb(var(--text-primary))' }}>
+                Edit Profile
+              </h3>
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="p-1 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                style={{ color: 'rgb(var(--text-tertiary))' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Email Field (Readonly) */}
+              <div>
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: 'rgb(var(--text-secondary))' }}>
+                  Email Address
+                </label>
+                <div className="relative opacity-60 cursor-not-allowed">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail size={16} style={{ color: 'rgb(var(--text-tertiary))' }} />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={session?.user?.email || ''}
+                    readOnly
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl cursor-not-allowed"
+                    style={{
+                      backgroundColor: 'rgb(var(--bg-tertiary))',
+                      color: 'rgb(var(--text-secondary))',
+                      border: '2px solid rgb(var(--border-secondary))',
+                    }}
+                  />
+                </div>
+                <p className="text-xs mt-1.5" style={{ color: 'rgb(var(--text-tertiary))' }}>
+                  Email address cannot be changed once account is created.
+                </p>
+              </div>
+
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: 'rgb(var(--text-secondary))' }}>
+                  Full Name <span className="text-blue-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <UserIcon size={16} style={{ color: 'rgb(var(--text-tertiary))' }} />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl outline-none transition-all duration-300"
+                    style={{
+                      backgroundColor: 'rgb(var(--bg-secondary))',
+                      color: 'rgb(var(--text-primary))',
+                      border: '2px solid rgb(var(--border-primary))',
+                    }}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+              </div>
+
+              {/* Phone Field */}
+              <div>
+                <label className="block text-sm font-semibold mb-1.5" style={{ color: 'rgb(var(--text-secondary))' }}>
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone size={16} style={{ color: 'rgb(var(--text-tertiary))' }} />
+                  </div>
+                  <input 
+                    type="text" 
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl outline-none transition-all duration-300"
+                    style={{
+                      backgroundColor: 'rgb(var(--bg-secondary))',
+                      color: 'rgb(var(--text-primary))',
+                      border: '2px solid rgb(var(--border-primary))',
+                    }}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div 
+              className="px-6 py-4 border-t flex items-center justify-end gap-3"
+              style={{
+                borderColor: 'rgb(var(--border-primary))',
+                backgroundColor: 'rgba(var(--bg-secondary), 0.3)'
+              }}
+            >
+              <button 
+                onClick={() => setIsEditing(false)}
+                disabled={isSaving}
+                className="px-5 py-2.5 rounded-xl font-semibold transition-all hover:-translate-y-0.5"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'rgb(var(--text-secondary))',
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+                className="btn-primary flex items-center gap-2 px-6 py-2.5 shadow-lg"
+              >
+                {isSaving ? <Loader size={18} className="animate-spin" /> : <Check size={18} />} 
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,16 +3,29 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  background: 'rgb(var(--bg-secondary))',
+  color: 'rgb(var(--text-primary))',
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -29,8 +42,15 @@ export default function ForgotPasswordPage() {
       }
 
       setSubmitted(true);
+      Toast.fire({
+        icon: 'success',
+        title: "Reset link sent"
+      });
     } catch (err: any) {
-      setError(err.message || "Failed to send reset email");
+      Toast.fire({
+        icon: 'error',
+        title: err.message || "Failed to send reset email"
+      });
     } finally {
       setLoading(false);
     }
@@ -138,24 +158,6 @@ export default function ForgotPasswordPage() {
             No worries! Enter your email and we'll send you a reset link.
           </p>
         </div>
-
-        {error && (
-          <div
-            className="p-4 rounded-xl mb-6 flex items-start gap-3"
-            style={{
-              backgroundColor: "rgba(var(--accent-error), 0.1)",
-              border: "2px solid rgb(var(--accent-error))",
-            }}
-          >
-            <span className="text-xl">⚠️</span>
-            <span
-              className="text-sm"
-              style={{ color: "rgb(var(--accent-error))" }}
-            >
-              {error}
-            </span>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

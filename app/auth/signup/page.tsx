@@ -14,11 +14,25 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  background: 'rgb(var(--bg-secondary))',
+  color: 'rgb(var(--text-primary))',
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 export default function SignUpPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,9 +45,11 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      Toast.fire({
+        icon: 'error',
+        title: "Passwords do not match"
+      });
       return;
     }
     setLoading(true);
@@ -50,8 +66,11 @@ export default function SignUpPage() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error || "Failed to create account");
         setLoading(false);
+        Toast.fire({
+          icon: 'error',
+          title: data.error || "Failed to create account"
+        });
         return;
       }
       // Auto sign‑in after successful signup
@@ -63,12 +82,19 @@ export default function SignUpPage() {
       if (result?.error) {
         router.push("/auth/signin");
       } else {
+        Toast.fire({
+          icon: 'success',
+          title: "Account created successfully"
+        });
         router.push("/");
         router.refresh();
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
       setLoading(false);
+      Toast.fire({
+        icon: 'error',
+        title: "An error occurred. Please try again."
+      });
     }
   };
 
@@ -91,13 +117,6 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[rgb(var(--bg-primary))] to-[rgb(var(--bg-secondary))]">
-      {/* Toast error */}
-      {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 border border-red-300 text-red-800 shadow-md animate-slide-down">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-        </div>
-      )}
       <div className="glass-light w-full max-w-md p-8 rounded-xl shadow-lg animate-fade-in">
         <div className="text-center mb-8">
           <h1

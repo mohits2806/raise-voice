@@ -13,11 +13,25 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import Swal from "sweetalert2";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 4000,
+  timerProgressBar: true,
+  background: 'rgb(var(--bg-secondary))',
+  color: 'rgb(var(--text-primary))',
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 export default function SignInPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,7 +44,6 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const result = await signIn("credentials", {
@@ -39,15 +52,25 @@ export default function SignInPage() {
         redirect: false,
       });
       if (result?.error) {
-        setError("Invalid email/phone or password");
         setLoading(false);
+        Toast.fire({
+          icon: 'error',
+          title: "Invalid email/phone or password"
+        });
         return;
       }
+      Toast.fire({
+        icon: 'success',
+        title: "Signed in successfully"
+      });
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError("An error occurred. Please try again.");
       setLoading(false);
+      Toast.fire({
+        icon: 'error',
+        title: "An error occurred. Please try again."
+      });
     }
   };
 
@@ -70,13 +93,6 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[rgb(var(--bg-primary))] to-[rgb(var(--bg-secondary))]">
-      {/* Toast error */}
-      {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 border border-red-300 text-red-800 shadow-md animate-slide-down">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-        </div>
-      )}
       <div className="glass-light w-full max-w-md p-8 rounded-xl shadow-lg animate-fade-in">
         <div className="text-center mb-8">
           <h1
