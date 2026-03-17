@@ -588,6 +588,7 @@ export default function LandingPage() {
               selectedLocation={null}
               userLocation={null}
               height="550px"
+              showLocationBtn={false}
             />
           </div>
           

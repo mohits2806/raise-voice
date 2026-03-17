@@ -63,7 +63,10 @@ export default function Header() {
       {showSignOutConfirm && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+          style={{
+            backgroundColor: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(4px)",
+          }}
           onClick={(e) => {
             // Close on backdrop click
             if (e.target === e.currentTarget) setShowSignOutConfirm(false);
@@ -123,9 +126,7 @@ export default function Header() {
               >
                 {signingOut ? (
                   <>
-                    <span
-                      className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-                    />
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Signing out…
                   </>
                 ) : (
@@ -154,9 +155,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-                >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                   <img src="/logo.webp" alt="logo" width={40} />
                 </div>
                 <div
@@ -175,20 +174,22 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-4">
-              <Link
-                href="/"
-                className="px-4 py-2 transition-all duration-300 font-medium rounded-lg hover:bg-opacity-10"
-                style={{ color: "rgb(var(--text-primary))" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgb(var(--bg-secondary))")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
-              >
-                Map
-              </Link>
+              {session && (
+                <Link
+                  href="/"
+                  className="px-4 py-2 transition-all duration-300 font-medium rounded-lg hover:bg-opacity-10"
+                  style={{ color: "rgb(var(--text-primary))" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "rgb(var(--bg-secondary))")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  Map
+                </Link>
+              )}
               {session && (
                 <>
                   <Link
@@ -232,7 +233,10 @@ export default function Header() {
                 {theme === "dark" ? (
                   <Sun size={20} className="text-yellow-400" />
                 ) : (
-                  <Moon size={20} style={{ color: "rgb(var(--text-primary))" }} />
+                  <Moon
+                    size={20}
+                    style={{ color: "rgb(var(--text-primary))" }}
+                  />
                 )}
               </button>
 
@@ -340,7 +344,10 @@ export default function Header() {
                 {theme === "dark" ? (
                   <Sun size={20} className="text-yellow-400" />
                 ) : (
-                  <Moon size={20} style={{ color: "rgb(var(--text-primary))" }} />
+                  <Moon
+                    size={20}
+                    style={{ color: "rgb(var(--text-primary))" }}
+                  />
                 )}
               </button>
               <button
@@ -363,7 +370,7 @@ export default function Header() {
               }}
             >
               <div className="flex flex-col gap-2">
-                <Link
+                {session && <Link
                   href="/"
                   className="px-4 py-3 rounded-lg transition-all duration-300"
                   style={{ color: "rgb(var(--text-primary))" }}
@@ -377,7 +384,7 @@ export default function Header() {
                   }
                 >
                   Map
-                </Link>
+                </Link>}
                 {session && (
                   <>
                     <Link

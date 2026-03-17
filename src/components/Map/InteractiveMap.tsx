@@ -417,6 +417,7 @@ interface InteractiveMapProps {
   userLocation?: { lat: number; lng: number } | null;
   initialCenter?: { lat: number; lng: number };
   height?: string;
+  showLocationBtn?: boolean;
 }
 
 // Fix Leaflet default marker icon issue
@@ -580,6 +581,7 @@ export default function InteractiveMap({
   userLocation,
   initialCenter,
   height = "600px",
+  showLocationBtn = true,
 }: InteractiveMapProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [shouldCenterOnUser, setShouldCenterOnUser] = useState(false);
@@ -873,10 +875,10 @@ export default function InteractiveMap({
 
       {/* Floating Location Button */}
       <div className="absolute bottom-6 right-6 z-[10]">
-        <LocationButton
+        {showLocationBtn && (<LocationButton
           onLocationClick={handleLocationClick}
           isGettingLocation={isGettingLocation}
-        />
+        />)}
       </div>
     </div>
   );
