@@ -23,7 +23,9 @@ export async function sendPasswordResetEmail({
 }: SendPasswordResetEmailParams) {
     try {
         const mailOptions = {
-            from: process.env.EMAIL_FROM,
+            from: process.env.EMAIL_FROM?.includes('<') 
+                ? process.env.EMAIL_FROM 
+                : `"${process.env.EMAIL_FROM || 'RaiseVoice'}" <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Reset Your Password - RaiseVoice',
             html: getPasswordResetTemplate(resetUrl, userName),
@@ -39,65 +41,83 @@ export async function sendPasswordResetEmail({
 }
 
 function getPasswordResetTemplate(resetUrl: string, userName: string): string {
+    const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+    
     return `
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Your Password</title>
+        <title>Reset Your Password - RaiseVoice</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-        <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <!-- Header with Gradient -->
-            <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); padding: 40px 32px; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">RaiseVoice</h1>
-                <p style="color: rgba(255, 255, 255, 0.9); margin: 8px 0 0 0; font-size: 16px;">Password Reset Request</p>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
+        <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(147, 51, 234, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);">
+            
+            <!-- Header with Premium Gradient -->
+            <div style="background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%); padding: 48px 32px 48px 32px; text-align: center;">
+                <div style="width: 72px; height: 72px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; margin: 0 auto; text-align: center; line-height: 72px;">
+                    <span style="font-size: 2.5rem;">🔑</span>
+                </div>
+                <h1 style="color: #ffffff; margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.5px;">Password Recovery</h1>
+                <p style="color: rgba(255, 255, 255, 0.85); margin: 10px 0 0 0; font-size: 16px; font-weight: 500;">Secure access to your RaiseVoice account</p>
+                <div style="margin-top: 24px; display: inline-block; background-color: rgba(255, 255, 255, 0.15); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <span style="color: #ffffff; font-size: 12px; font-weight: 600;">📅 Requested on ${now}</span>
+                </div>
             </div>
             
             <!-- Content -->
             <div style="padding: 40px 32px;">
-                <h2 style="color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 16px 0;">Hi ${userName},</h2>
+                <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin: 0 0 16px 0;">Hi ${userName} 👋</h2>
                 
-                <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
-                    We received a request to reset your password for your RaiseVoice account. Click the button below to create a new password:
+                <p style="color: #475569; font-size: 16px; line-height: 1.7; margin: 0 0 32px 0;">
+                    We received a request to reset your password for your <strong>RaiseVoice</strong> account. No need to worry, we've got you covered. Simply click the button below to secure your account:
                 </p>
                 
                 <!-- CTA Button -->
-                <div style="text-align: center; margin: 32px 0;">
-                    <a href="${resetUrl}" style="display: inline-block; background-color: #9333ea; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(147, 51, 234, 0.25);">
-                        Reset Your Password
+                <div style="text-align: center; margin: 40px 0;">
+                    <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 18px 40px; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 20px rgba(147, 51, 234, 0.3), 0 4px 6px rgba(147, 51, 234, 0.2); transition: all 0.3s ease;">
+                        Reset Password Now
                     </a>
                 </div>
                 
-                <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
-                    Or copy and paste this link into your browser:
-                </p>
-                <p style="color: #9333ea; font-size: 14px; word-break: break-all; margin: 8px 0 0 0;">
-                    ${resetUrl}
-                </p>
-                
-                <!-- Warning Box -->
-                <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 32px 0;">
-                    <p style="color: #92400e; font-size: 14px; margin: 0; line-height: 1.5;">
-                        <strong>⚠️ Security Notice:</strong> This link will expire in <strong>1 hour</strong>. If you didn't request this password reset, please contact us at support.
+                <div style="background-color: #f1f5f9; padding: 20px; border-radius: 12px; margin-bottom: 32px; border: 1px dashed #cbd5e1;">
+                    <p style="color: #64748b; font-size: 13px; margin: 0 0 8px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Or copy and paste this link:</p>
+                    <p style="color: #9333ea; font-size: 13px; word-break: break-all; margin: 0; font-family: monospace; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        ${resetUrl}
                     </p>
                 </div>
                 
-                <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
-                    Thanks,<br>
-                    The RaiseVoice Team
+                <!-- Security Notice -->
+                <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin: 32px 0;">
+                    <div style="display: flex; align-items: flex-start;">
+                        <span style="font-size: 20px; margin-right: 12px;">🛡️</span>
+                        <div>
+                            <p style="color: #92400e; font-size: 14px; margin: 0; font-weight: 600;">Security Reminder</p>
+                            <p style="color: #b45309; font-size: 13px; margin: 4px 0 0 0; line-height: 1.5;">
+                                This link will expire in <strong>60 minutes</strong>. If you didn't request this, you can safely ignore this email—your password will remain unchanged.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 32px 0 0 0;">
+                    Stay safe,<br>
+                    <strong style="color: #1e293b;">The RaiseVoice Team</strong>
                 </p>
             </div>
             
-            <!-- Footer -->
-            <div style="background-color: #f9fafb; padding: 24px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
-                <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                    RaiseVoice - 100% Anonymous Community Issue Reporting
+            <!-- Footer Branding -->
+            <div style="background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); padding: 32px 32px; border-top: 1px solid #e9d5ff; text-align: center;">
+                <div style="font-size: 20px; font-weight: 800; color: #7c3aed; margin-bottom: 8px;">📣 RaiseVoice</div>
+                <p style="color: #94a3b8; font-size: 12px; margin: 0; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                    100% Anonymous Community Issue Reporting Platform. Empowering citizens to make a difference.
                 </p>
-                <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0 0;">
-                    This is an automated email. Please do not reply.
-                </p>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(124, 58, 237, 0.1);">
+                    <p style="color: #cbd5e1; font-size: 11px; margin: 0;">
+                        This is an automated security notification. Please do not reply to this email.
+                    </p>
+                </div>
             </div>
         </div>
     </body>
@@ -111,7 +131,9 @@ export async function sendAdminNewIssueNotification(params: {
 }) {
     try {
         const mailOptions = {
-            from: process.env.EMAIL_FROM,
+            from: process.env.EMAIL_FROM?.includes('<') 
+                ? process.env.EMAIL_FROM 
+                : `"${process.env.EMAIL_FROM || 'RaiseVoice'}" <${process.env.SMTP_USER}>`,
             to: params.adminEmails,
             subject: `🚨 New Issue: ${params.issue.title}`,
             html: getAdminIssueNotificationTemplate(params.issue),
@@ -142,7 +164,9 @@ export async function sendIssueStatusUpdateNotification(params: {
         const newLabel = statusLabels[params.newStatus] || params.newStatus;
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM,
+            from: process.env.EMAIL_FROM?.includes('<') 
+                ? process.env.EMAIL_FROM 
+                : `"${process.env.EMAIL_FROM || 'RaiseVoice'}" <${process.env.SMTP_USER}>`,
             to: params.userEmail,
             subject: `📢 Issue Update: "${params.issue.title}" is now ${newLabel}`,
             html: getStatusUpdateTemplate(params),
@@ -261,7 +285,7 @@ function getStatusUpdateTemplate(params: {
             
             <!-- Footer -->
             <div style="background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); padding: 24px 32px; border-top: 1px solid #e9d5ff; text-align: center;">
-                <p style="color: #7c3aed; font-size: 14px; font-weight: 600; margin: 0;">🏛️ RaiseVoice</p>
+                <p style="color: #7c3aed; font-size: 14px; font-weight: 600; margin: 0;">📣 RaiseVoice</p>
                 <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0 0;">Your voice matters. Thank you for helping improve your community.</p>
             </div>
         </div>
@@ -374,7 +398,7 @@ function getAdminIssueNotificationTemplate(issue: any): string {
             
             <!-- Footer -->
             <div style="background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); padding: 24px 32px; border-top: 1px solid #e9d5ff; text-align: center;">
-                <p style="color: #7c3aed; font-size: 14px; font-weight: 600; margin: 0;">🏛️ RaiseVoice Admin Panel</p>
+                <p style="color: #7c3aed; font-size: 14px; font-weight: 600; margin: 0;">📣 RaiseVoice Admin Panel</p>
                 <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0 0;">You're receiving this because you are an administrator. Reporter identity is hidden by default.</p>
             </div>
         </div>
